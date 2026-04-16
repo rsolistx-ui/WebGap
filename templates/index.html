@@ -469,7 +469,7 @@
     <div class="sat-hdr">
       <div>
         <div class="sat-title">Market Saturation</div>
-        <div class="sat-sub">% of businesses in each category with no website</div>
+        <div class="sat-sub" id="satSub">% of businesses sampled in each category with no website</div>
       </div>
     </div>
     <div class="sat-rows" id="satRows"></div>
@@ -580,7 +580,7 @@
 </div>
 
 <script>
-window.GOOGLE_KEY = "{{ google_key }}";
+window.GOOGLE_CONFIGURED = {{ 'true' if google_configured else 'false' }};
 
 const DEFAULT_SUBJECT = "Quick question about your online presence";
 const DEFAULT_BODY = `Hi {{business_name}} team,
@@ -1099,11 +1099,32 @@ function syncBulkBar() {
   document.getElementById("bulkBar").classList.toggle("on", n > 0);
   document.getElementById("bulkCount").textContent = `${n} selected`;
 }
-function bulkEmail() {
-  const emails = [...selectedCards].map(pid => results[pid]?.email).filter(Boolean);
-  if (!emails.length) { alert("None of the selected businesses have email addresses."); return; }
-  const subj = lsGet(LS_TPL_SUB) || DEFAULT_SUBJECT;
-  window.open(`mailto:${emails[0]}?bcc=${emails.slice(1).join(",")}&subject=${encodeURIComponent(subj)}`);
+async function bulkEmail() {
+  const pairs = [...selectedCards]
+    .map(pid => ({ pid, email: results[pid]?.email, name: results[pid]?.name }))
+    .filter(p => p.email);
+  if (!pairs.length) { alert("None of the selected businesses have email addresses."); return; }
+
+  if (pairs.length === 1) {
+    // Single lead — open mailto directly
+    window.open(buildMailto(results[pairs[0].pid]));
+    return;
+  }
+
+  // Multiple leads — copy comma-separated list to clipboard so user can
+  // paste into their BCC field (mailto: BCC is not supported by RFC 6068)
+  const list = pairs.map(p => p.email).join(", ");
+  try {
+    await navigator.clipboard.writeText(list);
+    const btn = document.querySelector(".bulk-email-btn");
+    const orig = btn.textContent;
+    btn.textContent = `✓ ${pairs.length} emails copied`;
+    btn.style.background = "var(--green)";
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ""; }, 2500);
+  } catch {
+    // Clipboard API blocked — show the list in a prompt so user can copy manually
+    prompt(`Copy these ${pairs.length} email addresses:`, list);
+  }
 }
 
 // ── Sort & filter ─────────────────────────────────────────
@@ -1168,10 +1189,10 @@ function switchView(v) {
 
 // ── Google Map ────────────────────────────────────────────
 function initMap() {
-  if (!window.GOOGLE_KEY) return;
+  if (!window.GOOGLE_CONFIGURED) return;
   if (!window.google) {
     const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(window.GOOGLE_KEY)}&callback=onMapReady`;
+    s.src = `/api/maps-js?callback=onMapReady`;
     s.async = true;
     document.head.appendChild(s);
     return;
@@ -1525,22 +1546,25 @@ function renderSaturation() {
   const entries = Object.entries(satData);
   if (!entries.length) return;
   entries.sort((a, b) => b[1].pct - a[1].pct);
-  const maxPct = entries[0][1].pct || 1;
+  const maxPct  = entries[0][1].pct || 1;
+  const sampled = entries.reduce((sum, [, s]) => sum + s.total, 0);
+  document.getElementById("satSub").textContent =
+    `Sample-based estimate — ${sampled.toLocaleString()} businesses scanned across ${entries.length} categories`;
   document.getElementById("satRows").innerHTML = entries.map(([cat, s]) => {
     const color = s.pct >= 60 ? "var(--green)" : s.pct >= 35 ? "var(--orange)" : "var(--red)";
     return `<div class="sat-row">
       <span class="sat-cat">${esc(cat)}</span>
       <div class="sat-bar-wrap"><div class="sat-bar" style="width:${Math.round(s.pct/maxPct*100)}%;background:${color}"></div></div>
       <span class="sat-pct" style="color:${color}">${s.pct}%</span>
-      <span class="sat-n">${s.no_website}/${s.total}</span>
+      <span class="sat-n" title="no-website / sampled">${s.no_website}/${s.total}</span>
     </div>`;
   }).join("");
-  // Best pitch stat
   const [topCat, topS] = entries[0];
   const cityName = searchCity || "this city";
   document.getElementById("satPitch").textContent =
-    `Pitch insight: Only ${100 - topS.pct}% of ${topCat.toLowerCase()} in ${cityName} have a website — ` +
-    `${topS.no_website} out of ${topS.total} are reachable prospects right now.`;
+    `Pitch insight: ${topS.pct}% of the ${topCat.toLowerCase()} sampled in ${cityName} have no website — ` +
+    `${topS.no_website} out of ${topS.total} scanned are reachable prospects. ` +
+    `(Estimate based on sample; full market may differ.)`;
   document.getElementById("satPitch").style.display = "";
   document.getElementById("satPanel").classList.add("on");
 }

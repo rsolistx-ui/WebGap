@@ -126,10 +126,37 @@ def _fetch(url: str) -> str:
         return ""
 
 
+_THIRD_PARTY_DOMAINS = {
+    # Booking / POS / scheduling platforms
+    "squareup.com", "toasttab.com", "opentable.com", "resy.com",
+    "mindbodyonline.com", "vagaro.com", "booksy.com", "acuityscheduling.com",
+    "appointy.com", "fresha.com", "styleseat.com",
+    # Marketing / hosting
+    "constantcontact.com", "mailchimp.com", "wix.com", "squarespace.com",
+    "godaddy.com", "shopify.com", "weebly.com",
+    # Misc platforms often scraped from business pages
+    "doordash.com", "grubhub.com", "ubereats.com", "seamless.com",
+}
+
+
+def _score_email(email: str, name: str) -> int:
+    """Score how likely this email belongs to the business (higher = better)."""
+    domain = email.split("@")[1].lower()
+    if domain in _THIRD_PARTY_DOMAINS:
+        return -999          # discard platform emails entirely
+    name_tokens = set(re.sub(r"[^a-z0-9]", " ", name.lower()).split()) - {"the", "a", "of", "and"}
+    domain_clean = re.sub(r"\.(com|net|org|biz|co|us|info)$", "", domain)
+    domain_tokens = set(re.sub(r"[^a-z0-9]", " ", domain_clean).split())
+    overlap = len(name_tokens & domain_tokens)
+    score   = overlap * 20          # 20 pts per matching word
+    if domain.endswith((".com", ".net", ".org", ".biz")):
+        score += 5                  # professional TLD
+    return score
+
+
 def _src_bing(name, city, state):
     html = _fetch(f"https://www.bing.com/search?q={quote_plus(chr(34)+name+chr(34)+' '+city+' '+state+' email contact')}")
-    em = _extract_emails(html)
-    return (em[0], "Bing") if em else (None, None)
+    return [("Bing", em) for em in _extract_emails(html)]
 
 
 def _src_yellowpages(name, city, state):
@@ -137,23 +164,43 @@ def _src_yellowpages(name, city, state):
         f"https://www.yellowpages.com/search"
         f"?search_terms={quote_plus(name)}&geo_location_terms={quote_plus(city+', '+state)}"
     )
-    em = _extract_emails(html)
-    return (em[0], "YellowPages") if em else (None, None)
+    return [("YellowPages", em) for em in _extract_emails(html)]
 
 
 def _src_manta(name, city, state):
     html = _fetch(f"https://www.manta.com/search?search_source=nav&search[text]={quote_plus(name+' '+city+' '+state)}")
-    em = _extract_emails(html)
-    return (em[0], "Manta") if em else (None, None)
+    return [("Manta", em) for em in _extract_emails(html)]
 
 
 def find_email(name: str, city: str, state: str, _yelp_url=None) -> tuple:
-    """Returns (email, source) or (None, None). Tries three sources in sequence."""
-    for fn in (_src_bing, _src_yellowpages, _src_manta):
-        email, src = fn(name, city, state)
-        if email:
-            return email, src
-    return None, None
+    """
+    Queries all three sources in parallel, scores every candidate by domain
+    relevance to the business name, and returns the best (email, source) or
+    (None, None).
+    """
+    candidates: list[tuple[int, str, str]] = []  # (score, email, source)
+
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        futs = {
+            ex.submit(_src_bing,        name, city, state): None,
+            ex.submit(_src_yellowpages, name, city, state): None,
+            ex.submit(_src_manta,       name, city, state): None,
+        }
+        for fut in as_completed(futs):
+            try:
+                for src, em in (fut.result() or []):
+                    score = _score_email(em, name)
+                    if score > -999:
+                        candidates.append((score, em, src))
+            except Exception:
+                pass
+
+    if not candidates:
+        return None, None
+
+    candidates.sort(reverse=True)       # highest score first
+    _, best_email, best_src = candidates[0]
+    return best_email, best_src
 
 
 # ─── MX / domain validation ───────────────────────────────────────────────────
@@ -570,7 +617,23 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
 @app.route("/")
 def index():
     cats = [{"type": t, "label": l, "color": c} for t, q, l, c in CATEGORIES]
-    return render_template("index.html", categories=cats, google_key=GOOGLE_API_KEY)
+    return render_template("index.html", categories=cats,
+                           google_configured=bool(GOOGLE_API_KEY))
+
+
+@app.route("/api/maps-js")
+def maps_js_proxy():
+    """Proxy Google Maps JS so the API key is never exposed in the browser."""
+    cb = request.args.get("callback", "onMapReady")
+    if not re.match(r'^[A-Za-z_][A-Za-z0-9_.]*$', cb):
+        return "Invalid callback", 400
+    if not GOOGLE_API_KEY:
+        return "Google API key not configured", 503
+    from flask import redirect as _redirect
+    return _redirect(
+        f"https://maps.googleapis.com/maps/api/js"
+        f"?key={GOOGLE_API_KEY}&callback={cb}"
+    )
 
 
 @app.route("/api/status")

@@ -218,7 +218,13 @@ def get_known_ids(city: str = None, state: str = None) -> set:
 # ── Search history / saturation ────────────────────────────────────────────────
 
 def record_search_history(city, state, category, total, no_website, with_website):
+    """Upsert: keep only the most recent scan result per (city, state, category)."""
     with _conn() as c:
+        c.execute(
+            "DELETE FROM search_history "
+            "WHERE lower(city)=lower(?) AND lower(state)=lower(?) AND lower(category)=lower(?)",
+            (city, state, category),
+        )
         c.execute(
             "INSERT INTO search_history "
             "(city,state,category,total,no_website,with_website) VALUES (?,?,?,?,?,?)",
@@ -229,18 +235,18 @@ def record_search_history(city, state, category, total, no_website, with_website
 def get_saturation(city: str = None, state: str = None) -> list[dict]:
     q = """
         SELECT category,
-               MAX(searched_at)  AS last_searched,
-               SUM(total)        AS total,
-               SUM(no_website)   AS no_website,
-               SUM(with_website) AS with_website,
-               ROUND(100.0 * SUM(no_website) / NULLIF(SUM(total),0), 1) AS gap_pct
+               searched_at       AS last_searched,
+               total,
+               no_website,
+               with_website,
+               ROUND(100.0 * no_website / NULLIF(total,0), 1) AS gap_pct
         FROM search_history
     """
     where, params = [], []
     if city:  where.append("lower(city)=lower(?)");  params.append(city)
     if state: where.append("lower(state)=lower(?)"); params.append(state)
     if where: q += " WHERE " + " AND ".join(where)
-    q += " GROUP BY category ORDER BY gap_pct DESC"
+    q += " ORDER BY gap_pct DESC"
     with _conn() as c:
         rows = c.execute(q, params).fetchall()
     return [dict(r) for r in rows]
