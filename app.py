@@ -1,5 +1,6 @@
 import os, re, json, time, socket, math
 import requests
+import dns.resolver
 from html import unescape
 from urllib.parse import quote_plus, urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -154,10 +155,10 @@ def find_email(name: str, city: str, state: str, _yelp_url=None) -> tuple:
 # ─── MX / domain validation ───────────────────────────────────────────────────
 
 def _mx_check(email: str) -> bool:
-    """True if the email domain resolves (socket-based, no extra deps)."""
+    """True if the email domain has at least one MX record."""
     try:
         domain = email.split("@")[1]
-        socket.getaddrinfo(domain, None)
+        dns.resolver.resolve(domain, "MX")
         return True
     except Exception:
         return False
