@@ -881,6 +881,7 @@ function cardHTML(b) {
           ? `<span class="badge badge-social">Social Only</span>`
           : `<span class="badge badge-no-web">No Website</span>`}
         <span class="badge ${sCls}" id="score-${pid}">${score} ${sLbl}</span>
+        ${b.is_seen ? `<span class="badge badge-seen">● Seen</span>` : ""}
         ${overdueBadge}
         ${recencyBadge}
         ${ownerBadge}

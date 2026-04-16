@@ -38,6 +38,10 @@ CATEGORIES = [
     ("alterations",  "alterations tailor",    "Alterations",       "#C969E0"),
     ("tutoring",     "tutoring center",       "Tutoring",          "#5AC8FA"),
     ("catering",     "catering company",      "Catering",          "#FF6B35"),
+    ("event_planner","event planner venue",   "Event Planners",    "#FF6B6B"),
+    ("daycare",      "daycare childcare",     "Daycare",           "#4ECDC4"),
+    ("accountant",   "accountant bookkeeper", "Accountants",       "#45B7D1"),
+    ("insurance",    "insurance agent",       "Insurance Agents",  "#96CEB4"),
 ]
 
 CAT_MAP = {t: (q, l, c) for t, q, l, c in CATEGORIES}
@@ -329,6 +333,7 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
     total_checked = 0
     pending       = []          # businesses awaiting email lookup
     dnc_ids       = db.get_dnc_ids()
+    known_ids     = db.get_known_ids(city, state)
 
     # Per-category saturation tracking
     cat_stats: dict[str, dict] = {}
@@ -448,7 +453,8 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
 
                     # Stream card immediately — email pending
                     payload = {k: v for k, v in biz.items() if k != "yelp_url"}
-                    yield {"type": "result", "email_status": "searching", **payload}
+                    yield {"type": "result", "email_status": "searching",
+                           "is_seen": pid in known_ids, **payload}
                     yield {"type": "progress", "phase": 1,
                            "checked": total_checked, "found": len(pending)}
 

@@ -203,6 +203,18 @@ def get_dnc_ids() -> set:
     return {r[0] for r in rows}
 
 
+def get_known_ids(city: str = None, state: str = None) -> set:
+    """All place_ids previously saved (for cross-search Previously Seen badge)."""
+    q      = "SELECT place_id FROM leads"
+    where, params = [], []
+    if city:  where.append("lower(city)=lower(?)");  params.append(city)
+    if state: where.append("lower(state)=lower(?)"); params.append(state)
+    if where: q += " WHERE " + " AND ".join(where)
+    with _conn() as c:
+        rows = c.execute(q, params).fetchall()
+    return {r[0] for r in rows}
+
+
 # ── Search history / saturation ────────────────────────────────────────────────
 
 def record_search_history(city, state, category, total, no_website, with_website):
