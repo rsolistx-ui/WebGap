@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>BizFinder Pro</title>
+  <style>
+  :root{
+    --bg-0:#000;--bg-1:#1c1c1e;--bg-2:#2c2c2e;--bg-3:#3a3a3c;
+    --sep:rgba(84,84,88,.65);--sep-l:rgba(84,84,88,.35);
+    --lbl-1:#fff;--lbl-2:rgba(235,235,245,.6);--lbl-3:rgba(235,235,245,.3);
+    --blue:#0a84ff;--green:#30d158;--orange:#ff9f0a;--red:#ff453a;
+    --yellow:#ffd60a;--purple:#bf5af2;--teal:#5ac8fa;--pink:#ff375f;
+    --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:22px;
+    --font:-apple-system,"SF Pro Display","SF Pro Text",BlinkMacSystemFont,system-ui,"Helvetica Neue",sans-serif;
+    --ease:cubic-bezier(.25,.46,.45,.94);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg-0);color:var(--lbl-1);font-family:var(--font);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+  /* ── Header ── */
+  .hdr{position:sticky;top:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--sep);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .hdr-brand{display:flex;align-items:center;gap:11px;}
+  .hdr-icon{width:34px;height:34px;background:linear-gradient(135deg,#0a84ff,#bf5af2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 4px 14px rgba(10,132,255,.3);}
+  .hdr-title{font-size:18px;font-weight:700;letter-spacing:-.4px;}
+  .hdr-sub{font-size:11px;color:var(--lbl-2);margin-top:1px;}
+  .hdr-right{display:flex;align-items:center;gap:10px;}
+  .hdr-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:100px;border:1px solid var(--sep);color:var(--lbl-2);}
+  .hdr-btn{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:7px 13px;color:var(--lbl-1);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s;}
+  .hdr-btn:hover{opacity:.75;}
+
+  /* ── Layout ── */
+  .wrap{max-width:1200px;margin:0 auto;padding:28px 20px;}
+
+  /* ── Alerts ── */
+  .alert{border-radius:var(--r-lg);padding:13px 16px;font-size:13px;line-height:1.55;margin-bottom:18px;display:none;}
+  .alert.on{display:block;}
+  .alert-warn{background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.3);color:var(--orange);}
+  .alert-err{background:rgba(255,69,58,.1);border:1px solid rgba(255,69,58,.3);color:var(--red);}
+  .alert strong{display:block;font-size:14px;margin-bottom:3px;}
+  .alert code{background:rgba(255,255,255,.08);border-radius:4px;padding:1px 5px;font-family:"SF Mono","Fira Code",monospace;font-size:12px;}
+
+  /* ── Panel ── */
+  .panel{background:var(--bg-1);border:1px solid var(--sep-l);border-radius:var(--r-xl);padding:26px 24px 22px;margin-bottom:22px;}
+  .panel-title{font-size:21px;font-weight:700;letter-spacing:-.5px;}
+  .panel-sub{font-size:13px;color:var(--lbl-2);margin-top:4px;margin-bottom:22px;}
+  .row-inputs{display:flex;gap:10px;margin-bottom:20px;}
+  .inp-group{flex:1;display:flex;flex-direction:column;gap:5px;}
+  .inp-group.sm{flex:0 0 130px;}
+  .inp-lbl{font-size:11px;font-weight:600;color:var(--lbl-2);text-transform:uppercase;letter-spacing:.5px;}
+  .inp{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:12px 14px;color:var(--lbl-1);font-family:var(--font);font-size:15px;outline:none;width:100%;transition:border-color .18s,box-shadow .18s;}
+  .inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,.2);}
+  .inp::placeholder{color:var(--lbl-3);}
+  .sec-lbl{font-size:11px;font-weight:600;color:var(--lbl-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px;}
+  .chip{padding:5px 13px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;user-select:none;border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);transition:opacity .15s,transform .1s;}
+  .chip:active{transform:scale(.95);}
+  .row-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
+  .flt-group{display:flex;flex-direction:column;gap:5px;}
+  .sel{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:9px 12px;color:var(--lbl-1);font-family:var(--font);font-size:13px;outline:none;cursor:pointer;}
+
+  /* ── iOS toggle ── */
+  .toggle-row{display:flex;align-items:center;gap:9px;background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:9px 13px;cursor:pointer;user-select:none;min-width:170px;transition:border-color .2s,background .2s;}
+  .toggle-row:hover{border-color:rgba(48,209,88,.4);}
+  .toggle-row.active{border-color:rgba(48,209,88,.5);background:rgba(48,209,88,.07);}
+  .toggle-row.active .tgl-lbl{color:var(--green);}
+  .tgl-lbl{font-size:13px;color:var(--lbl-1);flex:1;}
+  .sw{position:relative;width:42px;height:25px;flex-shrink:0;}
+  .sw input{opacity:0;width:0;height:0;position:absolute;}
+  .sw-track{position:absolute;inset:0;border-radius:13px;background:var(--bg-3);transition:background .2s var(--ease);cursor:pointer;}
+  .sw-track::before{content:'';position:absolute;width:21px;height:21px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .2s var(--ease);}
+  .sw input:checked+.sw-track{background:var(--green);}
+  .sw input:checked+.sw-track::before{transform:translateX(17px);}
+
+  /* ── Cost estimate ── */
+  .cost-row{font-size:12px;color:var(--lbl-3);margin-bottom:18px;padding:0 2px;}
+  .cost-row span{color:var(--orange);}
+
+  /* ── Buttons ── */
+  .btn-row{display:flex;gap:9px;}
+  .btn{flex:1;padding:14px;border:none;border-radius:var(--r-lg);font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;}
+  .btn:active{transform:scale(.98);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-sec{background:var(--bg-2);color:var(--lbl-1);border:1px solid var(--sep-l);}
+  .btn-stop{background:var(--bg-2);color:var(--red);border:1px solid var(--sep-l);flex:0 0 auto;padding:14px 20px;display:none;}
+
+  /* ── Multi-city queue ── */
+  .queue-section{margin-top:16px;display:none;}
+  .queue-section.on{display:block;}
+  .queue-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;min-height:20px;}
+  .q-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 13px;border-radius:100px;font-size:12px;font-weight:500;border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-1);}
+  .q-chip.q-running{border-color:rgba(10,132,255,.5);background:rgba(10,132,255,.1);color:var(--blue);}
+  .q-chip.q-done{border-color:rgba(48,209,88,.4);background:rgba(48,209,88,.08);color:var(--green);}
+  .q-rm{background:none;border:none;color:var(--lbl-3);cursor:pointer;font-size:13px;padding:0;line-height:1;}
+  .q-rm:hover{color:var(--red);}
+  .q-btn-row{display:flex;gap:8px;}
+  .q-run-btn{background:var(--green);color:#000;font-weight:700;}
+
+  /* ── Dashboard panel ── */
+  .dash-panel{background:var(--bg-1);border:1px solid var(--sep-l);border-radius:var(--r-xl);padding:22px 24px 20px;margin-bottom:22px;display:none;}
+  .dash-panel.on{display:block;}
+  .dash-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .dash-title{font-size:17px;font-weight:700;letter-spacing:-.3px;}
+  .dash-refresh{background:none;border:none;color:var(--lbl-3);cursor:pointer;font-size:13px;padding:4px 8px;border-radius:var(--r-sm);transition:color .15s;}
+  .dash-refresh:hover{color:var(--lbl-1);}
+  .dash-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:18px;}
+  .dash-stat{background:var(--bg-2);border-radius:var(--r-md);padding:12px 14px;}
+  .dash-stat-val{font-size:22px;font-weight:700;letter-spacing:-.5px;line-height:1;}
+  .dash-stat-lbl{font-size:10px;color:var(--lbl-3);text-transform:uppercase;letter-spacing:.4px;margin-top:4px;}
+  .dash-overdue-val{color:var(--red);}
+  .dash-funnel{display:flex;align-items:center;gap:0;margin-bottom:16px;flex-wrap:wrap;gap:4px;}
+  .funnel-step{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:70px;}
+  .funnel-bar{height:6px;border-radius:3px;width:100%;background:var(--bg-3);}
+  .funnel-fill{height:100%;border-radius:3px;transition:width .5s var(--ease);}
+  .funnel-val{font-size:14px;font-weight:700;}
+  .funnel-lbl{font-size:9px;color:var(--lbl-3);text-transform:uppercase;letter-spacing:.4px;text-align:center;}
+  .funnel-arrow{color:var(--lbl-3);font-size:14px;align-self:center;margin-bottom:12px;}
+  .dash-cats{display:flex;flex-direction:column;gap:6px;}
+  .dash-cat-row{display:flex;align-items:center;gap:8px;font-size:12px;}
+  .dash-cat-name{flex:1;color:var(--lbl-2);}
+  .dash-cat-bar{flex:2;height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden;}
+  .dash-cat-fill{height:100%;background:var(--blue);border-radius:2px;}
+  .dash-cat-n{font-size:11px;font-weight:600;color:var(--lbl-2);min-width:24px;text-align:right;}
+
+  /* ── Progress ── */
+  .progress-wrap{display:none;background:var(--bg-1);border:1px solid var(--sep-l);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:20px;}
+  .progress-wrap.on{display:block;}
+  .progress-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .spin{width:16px;height:16px;flex-shrink:0;border:2px solid rgba(10,132,255,.25);border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .progress-msg{font-size:13px;color:var(--lbl-2);flex:1;}
+  .progress-stats{font-size:12px;color:var(--lbl-3);}
+  .progress-queue{font-size:11px;color:var(--blue);margin-top:4px;}
+  .pbar-track{height:3px;background:var(--bg-3);border-radius:2px;overflow:hidden;}
+  .pbar-fill{height:100%;background:var(--blue);border-radius:2px;width:0%;transition:width .4s var(--ease);}
+  .pbar-fill.phase2{background:var(--green);}
+
+  /* ── Results toolbar ── */
+  .res-toolbar{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  .res-toolbar.on{display:flex;}
+  .res-count{font-size:19px;font-weight:700;letter-spacing:-.4px;flex:1;}
+  .res-count span{color:var(--blue);}
+  .toolbar-group{display:flex;gap:6px;align-items:center;}
+  .tool-btn{padding:7px 13px;border-radius:100px;background:var(--bg-2);border:1px solid var(--sep-l);color:var(--lbl-1);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;transition:opacity .15s,background .15s;}
+  .tool-btn:hover{opacity:.8;}
+  .tool-btn.active{background:var(--blue);border-color:transparent;color:#fff;}
+  .tool-sel{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:100px;padding:7px 12px;color:var(--lbl-1);font-family:var(--font);font-size:12px;outline:none;cursor:pointer;}
+
+  /* ── Bulk bar ── */
+  .bulk-bar{display:none;align-items:center;gap:10px;padding:11px 16px;background:rgba(10,132,255,.1);border:1px solid rgba(10,132,255,.3);border-radius:var(--r-lg);margin-bottom:16px;}
+  .bulk-bar.on{display:flex;}
+  .bulk-count{font-size:13px;font-weight:600;color:var(--blue);flex:1;}
+  .bulk-btn{padding:7px 14px;border-radius:100px;border:none;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:opacity .15s;}
+  .bulk-email-btn{background:var(--blue);color:#fff;}
+  .bulk-clear-btn{background:var(--bg-2);color:var(--lbl-2);}
+
+  /* ── Grid ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;}
+
+  /* ── Card ── */
+  .card{background:var(--bg-1);border:1px solid var(--sep-l);border-radius:var(--r-xl);padding:20px;transition:transform .2s var(--ease),box-shadow .2s var(--ease);animation:cardIn .3s var(--ease) both;position:relative;}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.5);}
+  .card.selected{border-color:var(--blue);box-shadow:0 0 0 2px rgba(10,132,255,.3);}
+  .card.status-skip{opacity:.45;}
+  .card.status-emailed .biz-name::after{content:' ✓';font-size:12px;color:var(--blue);}
+  .card.status-followup .biz-name::after{content:' ↻';font-size:12px;color:var(--yellow);}
+  .card.status-replied  .biz-name::after{content:' ✉';font-size:12px;color:var(--green);}
+  .card.status-closed   .biz-name::after{content:' ★';font-size:12px;color:var(--purple);}
+  @keyframes cardIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes cardOut{to{opacity:0;transform:scale(.95);}}
+  .card.removing{animation:cardOut .25s var(--ease) forwards;}
+
+  .card-check{position:absolute;top:14px;right:14px;width:20px;height:20px;cursor:pointer;opacity:0;transition:opacity .15s;}
+  .card:hover .card-check,.card.selected .card-check{opacity:1;}
+  .card-check input{width:18px;height:18px;cursor:pointer;accent-color:var(--blue);}
+
+  .card-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;padding-right:28px;}
+  .biz-name{font-size:16px;font-weight:700;letter-spacing:-.3px;line-height:1.3;flex:1;}
+
+  /* ── Badges ── */
+  .badge-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap;}
+  .badge-no-web  {background:rgba(48,209,88,.12);color:var(--green); border:1px solid rgba(48,209,88,.3);}
+  .badge-social  {background:rgba(10,132,255,.12);color:var(--blue);  border:1px solid rgba(10,132,255,.3);}
+  .badge-seen    {background:rgba(255,159,10,.1); color:var(--orange);border:1px solid rgba(255,159,10,.3);}
+  .badge-overdue {background:rgba(255,69,58,.15); color:var(--red);   border:1px solid rgba(255,69,58,.4);animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+  /* Lead score */
+  .score-hot  {background:rgba(48,209,88,.15);  color:var(--green); border:1px solid rgba(48,209,88,.35);}
+  .score-good {background:rgba(10,132,255,.12);  color:var(--blue);  border:1px solid rgba(10,132,255,.3);}
+  .score-warm {background:rgba(255,159,10,.1);   color:var(--orange);border:1px solid rgba(255,159,10,.3);}
+  .score-cold {background:rgba(235,235,245,.05); color:var(--lbl-3); border:1px solid var(--sep-l);}
+
+  /* Recency / owner */
+  .recency-active  {background:rgba(48,209,88,.1); color:var(--green); border:1px solid rgba(48,209,88,.25);}
+  .recency-moderate{background:rgba(255,159,10,.1);color:var(--orange);border:1px solid rgba(255,159,10,.25);}
+  .recency-quiet   {background:rgba(235,235,245,.05);color:var(--lbl-3);border:1px solid var(--sep-l);}
+  .badge-owner     {background:rgba(10,132,255,.1);color:var(--blue);border:1px solid rgba(10,132,255,.25);}
+
+  .cat-badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600;margin-bottom:12px;}
+
+  /* ── Ratings ── */
+  .ratings{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end;}
+  .rat-item{display:flex;flex-direction:column;gap:2px;}
+  .rat-src{font-size:10px;font-weight:600;color:var(--lbl-3);text-transform:uppercase;letter-spacing:.5px;}
+  .rat-val{display:flex;align-items:center;gap:4px;}
+  .stars{color:var(--yellow);font-size:12px;letter-spacing:-1px;line-height:1;}
+  .rat-num{font-size:14px;font-weight:700;}
+  .rat-cnt{font-size:11px;color:var(--lbl-2);}
+  .rat-na{font-size:11px;color:var(--lbl-3);font-style:italic;}
+  .price-display{font-size:15px;font-weight:700;color:var(--green);letter-spacing:.5px;}
+
+  .divider{height:1px;background:var(--sep-l);margin:12px 0;}
+  .info{display:flex;flex-direction:column;gap:6px;}
+  .info-row{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--lbl-2);line-height:1.4;}
+  .info-row .ico{flex-shrink:0;margin-top:1px;font-size:12px;}
+
+  /* email row */
+  .email-row{display:flex;align-items:center;gap:7px;font-size:12px;line-height:1.4;background:rgba(10,132,255,.08);border:1px solid rgba(10,132,255,.2);border-radius:var(--r-sm);padding:6px 9px;margin-top:3px;}
+  .email-addr{color:var(--blue);font-weight:500;word-break:break-all;flex:1;}
+  .email-src{font-size:9px;color:var(--lbl-3);background:var(--bg-2);border-radius:4px;padding:1px 5px;white-space:nowrap;flex-shrink:0;}
+  .email-copy{background:none;border:none;cursor:pointer;color:var(--lbl-3);font-size:12px;padding:2px 4px;border-radius:4px;transition:color .15s;flex-shrink:0;}
+  .email-copy:hover{color:var(--blue);}
+  .email-searching{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--lbl-3);padding:6px 0 3px;margin-top:3px;}
+  .spin-sm{width:12px;height:12px;border:1.5px solid rgba(10,132,255,.25);border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite;flex-shrink:0;}
+  .badge-no-email{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--lbl-3);background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-sm);padding:5px 9px;margin-top:3px;}
+
+  /* card links */
+  .card-links{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap;}
+  .clink{flex:1;padding:8px 4px;border-radius:var(--r-md);border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-1);text-decoration:none;font-size:11px;font-weight:500;text-align:center;transition:opacity .15s;min-width:60px;}
+  .clink:hover{opacity:.75;}
+  .clink.primary{background:var(--blue);border-color:transparent;color:#fff;}
+  .clink.mail{background:rgba(10,132,255,.15);border-color:rgba(10,132,255,.3);color:var(--blue);}
+
+  /* ── Status row ── */
+  .status-row{display:flex;gap:5px;margin-top:12px;flex-wrap:wrap;}
+  .stt-btn{flex:1;padding:6px 4px;border-radius:var(--r-sm);border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);font-family:var(--font);font-size:10px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s;white-space:nowrap;min-width:52px;}
+  .stt-btn:hover{opacity:.8;}
+  .stt-btn.active-emailed {background:rgba(10,132,255,.2); border-color:rgba(10,132,255,.4); color:var(--blue);}
+  .stt-btn.active-followup{background:rgba(255,214,10,.15);border-color:rgba(255,214,10,.4);color:var(--yellow);}
+  .stt-btn.active-replied {background:rgba(48,209,88,.15); border-color:rgba(48,209,88,.4);  color:var(--green);}
+  .stt-btn.active-closed  {background:rgba(191,90,242,.15);border-color:rgba(191,90,242,.4); color:var(--purple);}
+  .stt-btn.active-skip    {background:var(--bg-3);          border-color:var(--sep-l);        color:var(--lbl-3);}
+
+  /* ── Feature 6: Status meta (date + overdue) ── */
+  .status-meta{display:flex;align-items:center;gap:8px;margin-top:6px;min-height:14px;}
+  .status-date-txt{font-size:10px;color:var(--lbl-3);}
+  .overdue-txt{font-size:10px;font-weight:700;color:var(--red);}
+
+  /* ── Feature 7: Notes ── */
+  .notes-section{margin-top:10px;}
+  .notes-toggle{display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--lbl-3);font-family:var(--font);font-size:11px;cursor:pointer;padding:3px 0;transition:color .15s;}
+  .notes-toggle:hover{color:var(--lbl-2);}
+  .notes-toggle.has-notes{color:var(--orange);}
+  .notes-body{display:none;margin-top:7px;}
+  .notes-body.open{display:block;}
+  .notes-ta{width:100%;background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:9px 11px;color:var(--lbl-1);font-family:var(--font);font-size:12px;line-height:1.5;outline:none;resize:vertical;min-height:70px;transition:border-color .15s;}
+  .notes-ta:focus{border-color:var(--blue);}
+  .notes-foot{display:flex;justify-content:flex-end;margin-top:4px;height:14px;}
+  .notes-saved{font-size:10px;color:var(--green);opacity:0;transition:opacity .3s;}
+
+  /* ── Feature 8: Card action buttons ── */
+  .card-actions{display:flex;gap:6px;margin-top:8px;}
+  .act-btn{flex:1;padding:6px 8px;border-radius:var(--r-sm);border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);font-family:var(--font);font-size:10px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s;white-space:nowrap;}
+  .act-btn:hover{opacity:.8;}
+  .act-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .act-reverify:hover{border-color:rgba(10,132,255,.4);color:var(--blue);}
+  .act-dnc:hover{border-color:rgba(255,69,58,.4);color:var(--red);}
+
+  /* ── Map view ── */
+  #mapView{display:none;border-radius:var(--r-xl);overflow:hidden;height:520px;border:1px solid var(--sep-l);}
+  #map{width:100%;height:100%;}
+
+  /* ── Empty state ── */
+  .empty{text-align:center;padding:60px 20px;color:var(--lbl-2);display:none;}
+  .empty.on{display:block;}
+  .empty-ico{font-size:48px;margin-bottom:14px;}
+  .empty-title{font-size:19px;font-weight:700;color:var(--lbl-1);margin-bottom:7px;}
+  .empty-txt{font-size:14px;max-width:360px;margin:0 auto;line-height:1.55;}
+
+  /* ── Modal ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.on{display:flex;}
+  .modal{background:var(--bg-1);border:1px solid var(--sep-l);border-radius:var(--r-xl);padding:26px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+  .modal-title{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:5px;}
+  .modal-sub{font-size:13px;color:var(--lbl-2);margin-bottom:18px;}
+  .modal-close{float:right;background:var(--bg-2);border:none;color:var(--lbl-2);font-size:18px;border-radius:50%;width:28px;height:28px;cursor:pointer;line-height:28px;text-align:center;}
+  .field-lbl{font-size:11px;font-weight:600;color:var(--lbl-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .tpl-ta{width:100%;background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:12px;color:var(--lbl-1);font-family:var(--font);font-size:13px;line-height:1.6;outline:none;resize:vertical;min-height:220px;}
+  .tpl-ta:focus{border-color:var(--blue);}
+  .tpl-hint{font-size:12px;color:var(--lbl-3);margin:8px 0 16px;line-height:1.5;}
+  .modal-btns{display:flex;gap:8px;margin-top:6px;}
+  .modal-btn{flex:1;padding:12px;border:none;border-radius:var(--r-lg);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;}
+  .modal-btn-primary{background:var(--blue);color:#fff;}
+  .modal-btn-sec{background:var(--bg-2);color:var(--lbl-1);}
+
+  /* ── Saturation panel ── */
+  .sat-panel{background:var(--bg-1);border:1px solid var(--sep-l);border-radius:var(--r-xl);padding:18px 22px 14px;margin-bottom:22px;display:none;}
+  .sat-panel.on{display:block;}
+  .sat-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .sat-title{font-size:15px;font-weight:700;letter-spacing:-.3px;}
+  .sat-sub{font-size:11px;color:var(--lbl-3);margin-top:1px;}
+  .sat-rows{display:flex;flex-direction:column;gap:4px;}
+  .sat-row{display:flex;align-items:center;gap:10px;padding:5px 0;}
+  .sat-cat{flex:1;font-size:12px;color:var(--lbl-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sat-bar-wrap{flex:2;height:5px;background:var(--bg-3);border-radius:3px;overflow:hidden;}
+  .sat-bar{height:100%;border-radius:3px;transition:width .5s var(--ease);}
+  .sat-pct{font-size:11px;font-weight:700;min-width:36px;text-align:right;}
+  .sat-n{font-size:10px;color:var(--lbl-3);min-width:56px;text-align:right;}
+  .sat-pitch{font-size:11px;color:var(--lbl-3);margin-top:10px;padding:9px 11px;background:var(--bg-2);border-radius:var(--r-md);line-height:1.55;border-left:2px solid var(--green);}
+
+  /* ── DNC modal rows ── */
+  .dnc-list-wrap{max-height:340px;overflow-y:auto;margin:-4px 0;}
+  .dnc-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--sep-l);}
+  .dnc-item:last-child{border-bottom:none;}
+  .dnc-info{flex:1;min-width:0;}
+  .dnc-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dnc-reason{font-size:11px;color:var(--lbl-3);margin-top:1px;}
+  .dnc-rm{background:none;border:1px solid rgba(255,69,58,.35);color:var(--red);cursor:pointer;font-size:11px;padding:3px 9px;border-radius:100px;white-space:nowrap;transition:background .15s;}
+  .dnc-rm:hover{background:rgba(255,69,58,.1);}
+  .dnc-empty{font-size:13px;color:var(--lbl-3);text-align:center;padding:28px 0;}
+
+  /* ── Responsive ── */
+  @media(max-width:600px){
+    .row-inputs{flex-direction:column;}
+    .inp-group.sm{flex:1;}
+    .grid{grid-template-columns:1fr;}
+    .wrap{padding:18px 14px;}
+    .hdr{padding:11px 14px;}
+    .panel{padding:18px 14px 16px;}
+    .res-toolbar{gap:7px;}
+    .dash-stats{grid-template-columns:repeat(3,1fr);}
+  }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-icon">📍</div>
+    <div>
+      <div class="hdr-title">BizFinder Pro</div>
+      <div class="hdr-sub">Local Lead Discovery</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <button class="hdr-btn" onclick="openDNCModal()">🚫 DNC</button>
+    <button class="hdr-btn" onclick="openTemplate()">✉ Template</button>
+    <div class="hdr-badge" id="apiStatus">Checking…</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ── Alerts ── -->
+  <div class="alert alert-warn" id="warnBanner">
+    <strong>⚙️  API Key Required</strong>
+    Copy <code>.env.example</code> to <code>.env</code> and add your <code>GOOGLE_API_KEY</code>.
+    A Yelp key (<code>YELP_API_KEY</code>) is optional.
+  </div>
+  <div class="alert alert-err" id="errBanner"></div>
+
+  <!-- ── Search panel ── -->
+  <div class="panel">
+    <div class="panel-title">Find Unrepresented Businesses</div>
+    <div class="panel-sub">Highly-rated local businesses with no website — filtered to those with a contactable email</div>
+
+    <div class="row-inputs">
+      <div class="inp-group">
+        <label class="inp-lbl" for="cityInp">City</label>
+        <input class="inp" id="cityInp" type="text" placeholder="e.g. Austin" autocomplete="off"/>
+      </div>
+      <div class="inp-group sm">
+        <label class="inp-lbl" for="stateInp">State</label>
+        <input class="inp" id="stateInp" type="text" placeholder="TX" maxlength="2" autocomplete="off" style="text-transform:uppercase"/>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Business Categories</div>
+    <div class="chips" id="chipRow">
+      {% for cat in categories %}
+      <div class="chip active"
+           data-type="{{ cat.type }}"
+           style="background:{{ cat.color }}20;border-color:{{ cat.color }}44;color:{{ cat.color }};"
+           onclick="toggleChip(this)">{{ cat.label }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="row-filters">
+      <div class="flt-group">
+        <div class="inp-lbl">Min Rating</div>
+        <select class="sel" id="minRat">
+          <option value="4.5" selected>4.5+ Stars</option>
+          <option value="4.0">4.0+ Stars</option>
+          <option value="4.8">4.8+ Stars (Elite)</option>
+        </select>
+      </div>
+      <div class="flt-group">
+        <div class="inp-lbl">Min Reviews</div>
+        <select class="sel" id="minRev">
+          <option value="5"  selected>5+ Reviews</option>
+          <option value="10">10+ Reviews</option>
+          <option value="25">25+ Reviews</option>
+          <option value="50">50+ Reviews</option>
+        </select>
+      </div>
+      <div class="flt-group">
+        <div class="inp-lbl">Email Filter</div>
+        <div class="toggle-row active" id="emailToggleRow" onclick="toggleEmail()">
+          <span class="tgl-lbl">Email only</span>
+          <label class="sw" onclick="event.stopPropagation()">
+            <input type="checkbox" id="emailToggle" checked onchange="syncEmailRow()"/>
+            <span class="sw-track"></span>
+          </label>
+        </div>
+      </div>
+      <div class="flt-group">
+        <div class="inp-lbl">Coverage</div>
+        <div class="toggle-row" id="gridToggleRow" onclick="toggleGrid()">
+          <span class="tgl-lbl">Grid search (3×3)</span>
+          <label class="sw" onclick="event.stopPropagation()">
+            <input type="checkbox" id="gridToggle" onchange="syncGridRow(); updateCostEst()"/>
+            <span class="sw-track"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="cost-row" id="costRow">Est. Google API cost: <span id="costEst">—</span></div>
+
+    <!-- ── Feature 10: Multi-city queue ── -->
+    <div class="queue-section" id="queueSection">
+      <div class="sec-lbl" style="margin-bottom:8px;">City Queue</div>
+      <div class="queue-list" id="queueList"></div>
+      <div class="q-btn-row">
+        <button class="btn btn-sec" style="flex:0 0 auto;padding:11px 16px;font-size:13px" onclick="runQueue()">▶ Run All Cities</button>
+        <button class="btn btn-sec" style="flex:0 0 auto;padding:11px 16px;font-size:13px;color:var(--lbl-3)" onclick="clearQueue()">Clear Queue</button>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn btn-primary" id="searchBtn" onclick="startSearch()">Search</button>
+      <button class="btn btn-sec"     id="queueBtn"  onclick="addToQueue()">+ Queue</button>
+      <button class="btn btn-stop"    id="stopBtn"   onclick="stopSearch()">Stop</button>
+    </div>
+  </div>
+
+  <!-- ── Feature 9: Dashboard panel ── -->
+  <div class="dash-panel" id="dashPanel">
+    <div class="dash-hdr">
+      <div class="dash-title">Pipeline Dashboard</div>
+      <button class="dash-refresh" onclick="loadDashboard()" title="Refresh">↺ Refresh</button>
+    </div>
+    <!-- Funnel -->
+    <div class="dash-funnel" id="dashFunnel"></div>
+    <!-- Stats grid -->
+    <div class="dash-stats" id="dashStats"></div>
+    <!-- Top categories -->
+    <div style="font-size:10px;font-weight:600;color:var(--lbl-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Top Categories</div>
+    <div class="dash-cats" id="dashCats"></div>
+  </div>
+
+  <!-- ── Saturation panel ── -->
+  <div class="sat-panel" id="satPanel">
+    <div class="sat-hdr">
+      <div>
+        <div class="sat-title">Market Saturation</div>
+        <div class="sat-sub">% of businesses in each category with no website</div>
+      </div>
+    </div>
+    <div class="sat-rows" id="satRows"></div>
+    <div class="sat-pitch" id="satPitch" style="display:none"></div>
+  </div>
+
+  <!-- ── Progress ── -->
+  <div class="progress-wrap" id="progWrap">
+    <div class="progress-top">
+      <div class="spin"></div>
+      <div class="progress-msg" id="progMsg">Searching…</div>
+      <div class="progress-stats" id="progStats"></div>
+    </div>
+    <div class="pbar-track"><div class="pbar-fill" id="pbarFill"></div></div>
+    <div class="progress-queue" id="progQueue" style="display:none"></div>
+  </div>
+
+  <!-- ── Results toolbar ── -->
+  <div class="res-toolbar" id="resToolbar">
+    <div class="res-count">Found <span id="resCount">0</span> leads</div>
+    <div class="toolbar-group">
+      <span style="font-size:11px;color:var(--lbl-3)">Sort:</span>
+      <select class="tool-sel" id="sortSel" onchange="applySort()">
+        <option value="score">Lead Score</option>
+        <option value="reviews">Most Reviews</option>
+        <option value="rating">Highest Rating</option>
+        <option value="name">Name A–Z</option>
+        <option value="email">Email First</option>
+        <option value="status">Status</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <span style="font-size:11px;color:var(--lbl-3)">Filter:</span>
+      <select class="tool-sel" id="filterSel" onchange="applyFilter()">
+        <option value="all">All</option>
+        <option value="email">Has Email</option>
+        <option value="no_email">No Email</option>
+        <option value="social">Social Only</option>
+        <option value="hot">Hot Leads (70+)</option>
+        <option value="overdue">Overdue</option>
+        <option value="new">Not Contacted</option>
+        <option value="emailed">Emailed</option>
+        <option value="followup">Follow Up</option>
+        <option value="replied">Replied</option>
+        <option value="active">Active Recency</option>
+        <option value="price_high">$$$ &amp; Above</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <button class="tool-btn active" id="viewList" onclick="switchView('list')">List</button>
+      <button class="tool-btn"        id="viewMap"  onclick="switchView('map')">Map</button>
+    </div>
+    <button class="tool-btn" onclick="exportCSV()">⬇ CSV</button>
+    <button class="tool-btn" onclick="exportAllCSV()" title="Export all saved leads from database">⬇ All (DB)</button>
+  </div>
+
+  <!-- ── Bulk bar ── -->
+  <div class="bulk-bar" id="bulkBar">
+    <div class="bulk-count" id="bulkCount">0 selected</div>
+    <button class="bulk-btn bulk-email-btn" onclick="bulkEmail()">✉ Email Selected</button>
+    <button class="bulk-btn bulk-clear-btn" onclick="clearSelection()">Clear</button>
+  </div>
+
+  <!-- ── Empty state ── -->
+  <div class="empty" id="emptyState">
+    <div class="empty-ico">🔍</div>
+    <div class="empty-title">No results found</div>
+    <div class="empty-txt" id="emptyTxt">Try broadening your search — lower the minimum rating, add more categories, or turn off the email filter.</div>
+  </div>
+
+  <!-- ── List / Map views ── -->
+  <div class="grid" id="grid"></div>
+  <div id="mapView"><div id="map"></div></div>
+
+</div>
+
+<!-- ── Email template modal ── -->
+<div class="modal-overlay" id="tplModal" onclick="if(event.target===this)closeTpl()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTpl()">×</button>
+    <div class="modal-title">Email Template</div>
+    <div class="modal-sub">Used when you click "Send Email" on a card. Use <code style="font-size:11px">{{business_name}}</code> and <code style="font-size:11px">{{city}}</code> as placeholders.</div>
+    <div class="field-lbl">Subject Line</div>
+    <input class="inp" id="tplSubject" style="margin-bottom:14px" placeholder="Quick question about your online presence"/>
+    <div class="field-lbl">Message Body</div>
+    <textarea class="tpl-ta" id="tplBody"></textarea>
+    <div class="tpl-hint">Tip: Keep it short and personal. Mention their business name and that you found them on Google with great reviews.</div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-primary" onclick="saveTpl()">Save Template</button>
+      <button class="modal-btn modal-btn-sec"     onclick="closeTpl()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DNC management modal ── -->
+<div class="modal-overlay" id="dncModal" onclick="if(event.target===this)closeDNCModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeDNCModal()">×</button>
+    <div class="modal-title">Do Not Contact List</div>
+    <div class="modal-sub">Businesses permanently excluded from all searches. Remove to re-enable.</div>
+    <div class="dnc-list-wrap" id="dncListWrap">
+      <div class="dnc-empty">Loading…</div>
+    </div>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="modal-btn modal-btn-sec" onclick="closeDNCModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.GOOGLE_KEY = "{{ google_key }}";
+
+const DEFAULT_SUBJECT = "Quick question about your online presence";
+const DEFAULT_BODY = `Hi {{business_name}} team,
+
+I came across your business on Google and was really impressed — your reviews speak for themselves. I noticed you don't currently have a website, and I'd love to help change that.
+
+I build clean, professional websites for local businesses in {{city}}. Most are live within 2 weeks, and clients typically start seeing new customers find them online within the first month.
+
+Would you be open to a quick 10-minute email exchange to see if it's a good fit? No pressure at all.
+
+Best,
+[Your Name]
+[Your Phone / Website]`;
+
+const LS_TPL_SUB  = "bfp_tpl_subject";
+const LS_TPL_BODY = "bfp_tpl_body";
+
+// ── State ─────────────────────────────────────────────────
+let results       = {};
+let selectedCards = new Set();
+let es            = null;
+let mapObj        = null;
+let mapMarkers    = [];
+let searchCity    = "";
+let searchState   = "";
+let p1Total       = 0;
+let p2Total       = 0;
+let p2Done        = 0;
+
+// Feature 10 — queue state
+let queue    = [];   // [{city, state, done, running}]
+let queueIdx = -1;   // -1 = not running
+
+// Saturation data collected during live search
+let satData  = {};   // {label: {total, no_website, pct}}
+
+// Feature 7 — note debounce timers
+const noteTimers = {};
+
+// ── LocalStorage (template only) ─────────────────────────
+function lsGet(k, def = null) {
+  try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : def; }
+  catch { return def; }
+}
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+// ── DB helpers ────────────────────────────────────────────
+function getStatus(pid) { return results[pid]?.status || null; }
+
+async function setStatusDB(pid, status) {
+  const current = getStatus(pid);
+  const newVal  = current === status ? null : status;
+  const now     = new Date().toISOString().slice(0, 10);
+  try {
+    await fetch(`/api/leads/${encodeURIComponent(pid)}`, {
+      method: "PATCH",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({status: newVal}),
+    });
+  } catch {}
+  if (results[pid]) {
+    results[pid].status      = newVal;
+    results[pid].status_date = newVal ? now : null;
+    results[pid].days_ago    = 0;
+    results[pid].overdue     = false;
+  }
+  return newVal;
+}
+
+// ── Score helpers ─────────────────────────────────────────
+function scoreClass(s) {
+  if (s >= 70) return "score-hot";
+  if (s >= 50) return "score-good";
+  if (s >= 30) return "score-warm";
+  return "score-cold";
+}
+function scoreLabel(s) {
+  if (s >= 70) return "Hot";
+  if (s >= 50) return "Good";
+  if (s >= 30) return "Warm";
+  return "Cold";
+}
+
+const PRICE_MAP = {4:"$$$$", 3:"$$$", 2:"$$", 1:"$"};
+
+// ── Feature 6: Overdue helpers ────────────────────────────
+function isOverdue(biz) {
+  if (!biz.status_date || !["emailed","followup","replied"].includes(biz.status)) return false;
+  const days = Math.floor((Date.now() - new Date(biz.status_date).getTime()) / 86400000);
+  return days >= 3;
+}
+function daysAgoText(biz) {
+  if (!biz.status || !biz.status_date) return "";
+  const days = typeof biz.days_ago === "number"
+    ? biz.days_ago
+    : Math.floor((Date.now() - new Date(biz.status_date).getTime()) / 86400000);
+  if (days === 0) return "Today";
+  if (days === 1) return "Yesterday";
+  return `${days} days ago`;
+}
+function updateStatusMeta(pid) {
+  const biz  = results[pid];
+  const el   = document.getElementById(`status-meta-${pid}`);
+  if (!el || !biz) return;
+  const overdue = isOverdue(biz);
+  const dateStr = daysAgoText(biz);
+  el.innerHTML  = `
+    ${dateStr ? `<span class="status-date-txt">${esc(dateStr)}</span>` : ""}
+    ${overdue  ? `<span class="overdue-txt">⚠ Overdue</span>` : ""}`;
+  // Update overdue badge
+  const ob = document.getElementById(`overdue-badge-${pid}`);
+  if (ob) ob.style.display = overdue ? "" : "none";
+  // Update card's data-overdue
+  const card = document.getElementById(`card-${pid}`);
+  if (card) card.dataset.overdue = overdue ? "1" : "0";
+}
+
+// ── Chip toggle ───────────────────────────────────────────
+document.querySelectorAll(".chip").forEach(c => {
+  c.dataset.bg  = c.style.background;
+  c.dataset.bc  = c.style.borderColor;
+  c.dataset.col = c.style.color;
+});
+function toggleChip(el) {
+  el.classList.toggle("active");
+  if (el.classList.contains("active")) {
+    el.style.background  = el.dataset.bg;
+    el.style.borderColor = el.dataset.bc;
+    el.style.color       = el.dataset.col;
+  } else {
+    el.style.background = el.style.borderColor = el.style.color = "";
+  }
+  updateCostEst();
+}
+function selectedCats() {
+  return [...document.querySelectorAll(".chip.active")].map(c => c.dataset.type);
+}
+
+function toggleEmail() {
+  const cb = document.getElementById("emailToggle");
+  cb.checked = !cb.checked;
+  syncEmailRow();
+}
+function syncEmailRow() {
+  const on = document.getElementById("emailToggle").checked;
+  document.getElementById("emailToggleRow").classList.toggle("active", on);
+}
+function requireEmail() { return document.getElementById("emailToggle").checked; }
+
+function useGrid() { return document.getElementById("gridToggle").checked; }
+function toggleGrid() {
+  const cb = document.getElementById("gridToggle");
+  cb.checked = !cb.checked;
+  syncGridRow(); updateCostEst();
+}
+function syncGridRow() {
+  const on = document.getElementById("gridToggle").checked;
+  document.getElementById("gridToggleRow").classList.toggle("active", on);
+}
+
+function updateCostEst() {
+  const n      = selectedCats().length;
+  const mult   = useGrid() ? 9 : 1;
+  const base   = 0.60;
+  const cost   = (n * base * mult).toFixed(2);
+  const detail = useGrid()
+    ? `$${base}/cat × ${n} cats × 9 grid zones`
+    : `$${base}/category × ${n} selected`;
+  document.getElementById("costEst").textContent = n ? `~$${cost} (${detail})` : "—";
+}
+updateCostEst();
+
+function stars(n) {
+  const f = Math.floor(n), h = (n - f) >= .5 ? 1 : 0, e = 5 - f - h;
+  return "★".repeat(f) + (h ? "⯨" : "") + "☆".repeat(e);
+}
+function esc(s) {
+  const d = document.createElement("div");
+  d.appendChild(document.createTextNode(s || ""));
+  return d.innerHTML;
+}
+
+// ── Personalized pitch line ───────────────────────────────
+function pitchLine(b) {
+  const name    = b.name || "your business";
+  const reviews = b.google_reviews || 0;
+  const city    = b.city || searchCity || "your city";
+  const cat     = (b.category || "business").toLowerCase();
+  if (b.presence === "social")
+    return `"${name} is active on social but invisible on Google Search — a simple site captures customers who don't check Instagram."`;
+  if (reviews >= 200)
+    return `"With ${reviews.toLocaleString()} Google reviews, ${name} is one of ${city}'s most-loved ${cat}s — a website turns that word-of-mouth into searchable traffic."`;
+  if ((b.google_rating || 0) >= 4.8 && reviews >= 20)
+    return `"A ${b.google_rating}-star average is exceptional. A website makes sure people searching for ${cat} in ${city} can actually find you."`;
+  if ((b.price_level || 0) >= 3)
+    return `"A premium ${cat} like ${name} loses high-value clients every day to competitors who show up on Google first."`;
+  return "";
+}
+
+// ── Build card HTML ───────────────────────────────────────
+function cardHTML(b) {
+  const status    = b.status || null;
+  const yelp      = b.yelp;
+  const isSocial  = b.presence === "social";
+  const score     = b.lead_score || 0;
+  const sCls      = scoreClass(score);
+  const sLbl      = scoreLabel(score);
+  const priceStr  = b.price_level ? (PRICE_MAP[b.price_level] || "") : "";
+  const overdue   = isOverdue(b);
+  const dateStr   = daysAgoText(b);
+  const hasNotes  = !!(b.notes && b.notes.trim());
+
+  const yelpBlock = yelp
+    ? `<div class="rat-item">
+         <div class="rat-src">Yelp</div>
+         <div class="rat-val">
+           <span class="stars">${stars(yelp.rating)}</span>
+           <span class="rat-num">${yelp.rating.toFixed(1)}</span>
+           <span class="rat-cnt">(${yelp.review_count.toLocaleString()})</span>
+         </div></div>`
+    : `<div class="rat-item"><div class="rat-src">Yelp</div><span class="rat-na">Not listed</span></div>`;
+
+  const priceBlock = priceStr
+    ? `<div class="rat-item">
+         <div class="rat-src">Price</div>
+         <div class="price-display">${esc(priceStr)}</div>
+       </div>`
+    : "";
+
+  const emailBlock = b.email_status === "searching"
+    ? `<div class="email-searching"><div class="spin-sm"></div><span>Finding email…</span></div>`
+    : b.email
+      ? `<div class="email-row">
+           <span class="ico" style="font-size:12px">✉️</span>
+           <span class="email-addr">${esc(b.email)}</span>
+           ${b.email_source ? `<span class="email-src">via ${esc(b.email_source)}</span>` : ""}
+           <button class="email-copy" title="Copy" onclick="copyEmail('${esc(b.email)}',this)">⧉</button>
+         </div>`
+      : `<div class="badge-no-email">✉️ No email found</div>`;
+
+  const mailto     = b.email ? buildMailto(b) : "";
+  const mailtoLink = mailto ? `<a href="${mailto}" class="clink mail">Send Email</a>` : "";
+  const mapsLink   = b.google_maps_url
+    ? `<a href="${esc(b.google_maps_url)}" target="_blank" rel="noopener" class="clink primary">Maps</a>` : "";
+  const yelpLink   = yelp?.url
+    ? `<a href="${esc(yelp.url)}" target="_blank" rel="noopener" class="clink">Yelp</a>` : "";
+  const socialLink = isSocial && b.social_url
+    ? `<a href="${esc(b.social_url)}" target="_blank" rel="noopener" class="clink">Social</a>` : "";
+
+  const statusClass = status ? `status-${status}` : "";
+
+  // Recency badge
+  const rcCls = {active:"recency-active", moderate:"recency-moderate", quiet:"recency-quiet"};
+  const rcLbl = {active:"● Active", moderate:"● Moderate", quiet:"● Quiet"};
+  const recencyBadge = b.review_recency && rcCls[b.review_recency]
+    ? `<span class="badge ${rcCls[b.review_recency]}">${rcLbl[b.review_recency]}</span>` : "";
+  const ownerBadge   = (b.owner_responses > 0)
+    ? `<span class="badge badge-owner">Responds ✓</span>` : "";
+
+  // Status buttons (5 states)
+  const STT = [
+    ["emailed",  "✓ Emailed"],
+    ["followup", "↻ Follow Up"],
+    ["replied",  "✉ Replied"],
+    ["closed",   "★ Closed"],
+    ["skip",     "✕ Skip"],
+  ];
+  const sttBtns = STT.map(([s, lbl]) =>
+    `<button class="stt-btn ${status===s?`active-${s}`:""}"
+             onclick="cycleStatus('${esc(b.place_id)}','${s}')">${lbl}</button>`
+  ).join("");
+
+  // Feature 6: overdue badge (hidden if not overdue, shown dynamically)
+  const overdueBadge = `<span class="badge badge-overdue" id="overdue-badge-${esc(b.place_id)}"
+    style="display:${overdue?'':'none'}">⚠ Overdue</span>`;
+
+  const pid = esc(b.place_id);
+
+  return `
+    <div class="card ${statusClass}" id="card-${pid}"
+         data-pid="${pid}"
+         data-rating="${b.google_rating}"
+         data-reviews="${b.google_reviews}"
+         data-name="${esc(b.name)}"
+         data-category="${esc(b.category)}"
+         data-has-email="${b.email ? 1 : 0}"
+         data-presence="${esc(b.presence||"none")}"
+         data-score="${score}"
+         data-overdue="${overdue?1:0}"
+         data-recency="${esc(b.review_recency||'')}"
+         data-price="${b.price_level||0}">
+      <div class="card-check"><input type="checkbox" onchange="toggleSelect('${pid}',this)"/></div>
+      <div class="card-top">
+        <div class="biz-name">${esc(b.name)}</div>
+      </div>
+      <div class="badge-row">
+        ${isSocial
+          ? `<span class="badge badge-social">Social Only</span>`
+          : `<span class="badge badge-no-web">No Website</span>`}
+        <span class="badge ${sCls}" id="score-${pid}">${score} ${sLbl}</span>
+        ${overdueBadge}
+        ${recencyBadge}
+        ${ownerBadge}
+      </div>
+      <span class="cat-badge" style="background:${esc(b.category_color)}22;color:${esc(b.category_color)}">${esc(b.category)}</span>
+      <div class="ratings">
+        <div class="rat-item">
+          <div class="rat-src">Google</div>
+          <div class="rat-val">
+            <span class="stars">${stars(b.google_rating)}</span>
+            <span class="rat-num">${b.google_rating.toFixed(1)}</span>
+            <span class="rat-cnt">(${b.google_reviews.toLocaleString()})</span>
+          </div>
+        </div>
+        ${yelpBlock}
+        ${priceBlock}
+      </div>
+      <div class="divider"></div>
+      <div class="info">
+        <div class="info-row"><span class="ico">📍</span><span>${esc(b.address)}</span></div>
+        ${b.phone ? `<div class="info-row"><span class="ico">📞</span><span>${esc(b.phone)}</span></div>` : ""}
+        ${emailBlock}
+      </div>
+      ${(mailtoLink||mapsLink||yelpLink||socialLink)
+        ? `<div class="card-links">${mailtoLink}${mapsLink}${yelpLink}${socialLink}</div>` : ""}
+      <div class="status-row">${sttBtns}</div>
+      <div class="status-meta" id="status-meta-${pid}">
+        ${dateStr ? `<span class="status-date-txt">${esc(dateStr)}</span>` : ""}
+        ${overdue  ? `<span class="overdue-txt">⚠ Overdue</span>` : ""}
+      </div>
+      <div class="card-actions">
+        <button class="act-btn act-reverify" id="reverify-${pid}"
+                onclick="reverifyEmail('${pid}')">🔄 Re-verify</button>
+        <button class="act-btn act-dnc"
+                onclick="addToDNC('${pid}')">🚫 DNC</button>
+      </div>
+      <div class="sat-pitch" style="display:${pitchLine(b)?'':'none'};margin-top:8px" id="pitch-${pid}">${esc(pitchLine(b))}</div>
+      <div class="notes-section">
+        <button class="notes-toggle ${hasNotes?'has-notes':''}" id="notes-toggle-${pid}"
+                onclick="toggleNotes('${pid}')">
+          📝 ${hasNotes ? "Notes (saved)" : "Add Notes"}
+        </button>
+        <div class="notes-body" id="notes-body-${pid}">
+          <textarea class="notes-ta" id="notes-ta-${pid}"
+                    placeholder="Private notes about this lead…"
+                    oninput="onNoteChange('${pid}')">${esc(b.notes||"")}</textarea>
+          <div class="notes-foot">
+            <span class="notes-saved" id="notes-saved-${pid}">Saved ✓</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── Mailto builder ────────────────────────────────────────
+function buildMailto(b) {
+  const subj = (lsGet(LS_TPL_SUB) || DEFAULT_SUBJECT)
+    .replace(/\{\{business_name\}\}/gi, b.name)
+    .replace(/\{\{city\}\}/gi, searchCity);
+  const body = (lsGet(LS_TPL_BODY) || DEFAULT_BODY)
+    .replace(/\{\{business_name\}\}/gi, b.name)
+    .replace(/\{\{city\}\}/gi, searchCity);
+  return `mailto:${encodeURIComponent(b.email)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+}
+
+async function copyEmail(email, btn) {
+  try {
+    await navigator.clipboard.writeText(email);
+    const orig = btn.textContent;
+    btn.textContent = "✓"; btn.style.color = "var(--green)";
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ""; }, 1500);
+  } catch {}
+}
+
+// ── Feature 6: Status + overdue ───────────────────────────
+async function cycleStatus(pid, newStatus) {
+  const val  = await setStatusDB(pid, newStatus);
+  const card = document.getElementById(`card-${pid}`);
+  if (!card) return;
+  ["emailed","followup","replied","closed","skip"].forEach(s => {
+    card.classList.remove(`status-${s}`);
+    card.querySelectorAll(".stt-btn").forEach(b => b.classList.remove(`active-${s}`));
+  });
+  if (val) {
+    card.classList.add(`status-${val}`);
+    card.querySelectorAll(".stt-btn").forEach(b => {
+      const map = {emailed:"emailed",followup:"follow",replied:"replied",closed:"closed",skip:"skip"};
+      if (b.textContent.toLowerCase().includes(map[val] || val))
+        b.classList.add(`active-${val}`);
+    });
+  }
+  updateStatusMeta(pid);
+}
+
+// ── Feature 7: Notes ──────────────────────────────────────
+function toggleNotes(pid) {
+  const body = document.getElementById(`notes-body-${pid}`);
+  if (body) body.classList.toggle("open");
+}
+
+function onNoteChange(pid) {
+  clearTimeout(noteTimers[pid]);
+  noteTimers[pid] = setTimeout(() => saveNote(pid), 800);
+}
+
+async function saveNote(pid) {
+  const ta = document.getElementById(`notes-ta-${pid}`);
+  if (!ta) return;
+  const text = ta.value;
+  if (results[pid]) results[pid].notes = text;
+  // Update toggle button appearance
+  const toggle = document.getElementById(`notes-toggle-${pid}`);
+  if (toggle) {
+    toggle.classList.toggle("has-notes", !!text.trim());
+    toggle.textContent = text.trim() ? "📝 Notes (saved)" : "📝 Add Notes";
+  }
+  try {
+    await fetch(`/api/leads/${encodeURIComponent(pid)}`, {
+      method: "PATCH",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({notes: text}),
+    });
+    const saved = document.getElementById(`notes-saved-${pid}`);
+    if (saved) {
+      saved.style.opacity = "1";
+      setTimeout(() => { saved.style.opacity = "0"; }, 1500);
+    }
+  } catch {}
+}
+
+// ── Feature 8: Re-verify + DNC ───────────────────────────
+async function reverifyEmail(pid) {
+  const btn = document.getElementById(`reverify-${pid}`);
+  if (btn) { btn.disabled = true; btn.textContent = "🔄 Searching…"; }
+  try {
+    const r = await fetch(`/api/reverify/${encodeURIComponent(pid)}`);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    updateCardEmail(pid, d.email, d.email_source, d.lead_score);
+  } catch(e) {
+    // silently ignore, restore button
+  }
+  if (btn) { btn.disabled = false; btn.textContent = "🔄 Re-verify Email"; }
+}
+
+async function addToDNC(pid) {
+  const name = results[pid]?.name || pid;
+  if (!confirm(`Add "${name}" to Do Not Contact list?\n\nThis business will be hidden and skipped in future searches.`))
+    return;
+  try {
+    await fetch("/api/dnc", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({place_id: pid, name, reason: "Manual DNC"}),
+    });
+    removeCard(pid);
+  } catch {}
+}
+
+// ── DNC management modal ─────────────────────────────────
+async function openDNCModal() {
+  document.getElementById("dncModal").classList.add("on");
+  await loadDNCList();
+}
+function closeDNCModal() {
+  document.getElementById("dncModal").classList.remove("on");
+}
+async function loadDNCList() {
+  const wrap = document.getElementById("dncListWrap");
+  wrap.innerHTML = '<div class="dnc-empty">Loading…</div>';
+  try {
+    const rows = await (await fetch("/api/dnc")).json();
+    if (!rows.length) {
+      wrap.innerHTML = '<div class="dnc-empty">No businesses on the DNC list.</div>';
+      return;
+    }
+    wrap.innerHTML = rows.map(r => `
+      <div class="dnc-item" id="dnc-row-${esc(r.place_id)}">
+        <div class="dnc-info">
+          <div class="dnc-name">${esc(r.name || r.place_id)}</div>
+          ${r.reason ? `<div class="dnc-reason">${esc(r.reason)}</div>` : ""}
+        </div>
+        <button class="dnc-rm" onclick="removeDNCItem('${esc(r.place_id)}')">Remove</button>
+      </div>`).join("");
+  } catch {
+    wrap.innerHTML = '<div class="dnc-empty">Failed to load list.</div>';
+  }
+}
+async function removeDNCItem(pid) {
+  try {
+    await fetch(`/api/dnc/${encodeURIComponent(pid)}`, {method: "DELETE"});
+    document.getElementById(`dnc-row-${pid}`)?.remove();
+    if (!document.querySelector(".dnc-item"))
+      document.getElementById("dncListWrap").innerHTML = '<div class="dnc-empty">No businesses on the DNC list.</div>';
+  } catch {}
+}
+
+// ── Card selection ────────────────────────────────────────
+function toggleSelect(pid, cb) {
+  if (cb.checked) selectedCards.add(pid); else selectedCards.delete(pid);
+  document.getElementById(`card-${pid}`)?.classList.toggle("selected", cb.checked);
+  syncBulkBar();
+}
+function clearSelection() {
+  selectedCards.forEach(pid => {
+    document.getElementById(`card-${pid}`)?.classList.remove("selected");
+    const cb = document.querySelector(`#card-${pid} input[type=checkbox]`);
+    if (cb) cb.checked = false;
+  });
+  selectedCards.clear();
+  syncBulkBar();
+}
+function syncBulkBar() {
+  const n = selectedCards.size;
+  document.getElementById("bulkBar").classList.toggle("on", n > 0);
+  document.getElementById("bulkCount").textContent = `${n} selected`;
+}
+function bulkEmail() {
+  const emails = [...selectedCards].map(pid => results[pid]?.email).filter(Boolean);
+  if (!emails.length) { alert("None of the selected businesses have email addresses."); return; }
+  const subj = lsGet(LS_TPL_SUB) || DEFAULT_SUBJECT;
+  window.open(`mailto:${emails[0]}?bcc=${emails.slice(1).join(",")}&subject=${encodeURIComponent(subj)}`);
+}
+
+// ── Sort & filter ─────────────────────────────────────────
+function applySort() {
+  const by    = document.getElementById("sortSel").value;
+  const cards = [...document.querySelectorAll(".card")];
+  const grid  = document.getElementById("grid");
+  const statusOrder = {emailed:0, followup:1, replied:2, closed:3, null:4, skip:5};
+  cards.sort((a, b) => {
+    switch (by) {
+      case "score":   return (+b.dataset.score)   - (+a.dataset.score);
+      case "reviews": return (+b.dataset.reviews) - (+a.dataset.reviews);
+      case "rating":  return (+b.dataset.rating)  - (+a.dataset.rating);
+      case "name":    return a.dataset.name.localeCompare(b.dataset.name);
+      case "email":   return (+b.dataset.hasEmail) - (+a.dataset.hasEmail);
+      case "status": {
+        const sa = statusOrder[getStatus(a.dataset.pid)] ?? 4;
+        const sb = statusOrder[getStatus(b.dataset.pid)] ?? 4;
+        return sa - sb;
+      }
+    }
+    return 0;
+  });
+  cards.forEach(c => grid.appendChild(c));
+}
+
+function applyFilter() {
+  const f = document.getElementById("filterSel").value;
+  document.querySelectorAll(".card").forEach(card => {
+    const pid      = card.dataset.pid;
+    const status   = getStatus(pid);
+    const hasEmail = card.dataset.hasEmail === "1";
+    const presence = card.dataset.presence;
+    const score    = +(card.dataset.score || 0);
+    const overdue  = card.dataset.overdue === "1";
+    const recency  = card.dataset.recency || "";
+    const price    = +(card.dataset.price || 0);
+    let show = true;
+    if (f === "email")      show = hasEmail;
+    if (f === "no_email")   show = !hasEmail;
+    if (f === "social")     show = presence === "social";
+    if (f === "hot")        show = score >= 70;
+    if (f === "overdue")    show = overdue;
+    if (f === "new")        show = !status;
+    if (f === "emailed")    show = status === "emailed";
+    if (f === "followup")   show = status === "followup";
+    if (f === "replied")    show = status === "replied";
+    if (f === "active")     show = recency === "active";
+    if (f === "price_high") show = price >= 3;
+    card.style.display = show ? "" : "none";
+  });
+}
+
+// ── View toggle ───────────────────────────────────────────
+function switchView(v) {
+  document.getElementById("viewList").classList.toggle("active", v === "list");
+  document.getElementById("viewMap").classList.toggle("active",  v === "map");
+  document.getElementById("grid").style.display    = v === "list" ? "" : "none";
+  document.getElementById("mapView").style.display = v === "map"  ? "" : "none";
+  if (v === "map") initMap();
+}
+
+// ── Google Map ────────────────────────────────────────────
+function initMap() {
+  if (!window.GOOGLE_KEY) return;
+  if (!window.google) {
+    const s = document.createElement("script");
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(window.GOOGLE_KEY)}&callback=onMapReady`;
+    s.async = true;
+    document.head.appendChild(s);
+    return;
+  }
+  onMapReady();
+}
+window.onMapReady = function() {
+  if (mapObj) { renderMapMarkers(); return; }
+  mapObj = new google.maps.Map(document.getElementById("map"), {
+    zoom: 11, center: {lat:39.5, lng:-98.35},
+    styles: [
+      {elementType:"geometry",stylers:[{color:"#1c1c1e"}]},
+      {elementType:"labels.text.fill",stylers:[{color:"#ffffff"}]},
+      {elementType:"labels.text.stroke",stylers:[{color:"#000000"}]},
+      {featureType:"road",elementType:"geometry",stylers:[{color:"#2c2c2e"}]},
+      {featureType:"water",elementType:"geometry",stylers:[{color:"#000000"}]},
+      {featureType:"poi",elementType:"geometry",stylers:[{color:"#3a3a3c"}]},
+    ],
+  });
+  renderMapMarkers();
+};
+function renderMapMarkers() {
+  if (!mapObj) return;
+  mapMarkers.forEach(m => m.setMap(null));
+  mapMarkers = [];
+  const bounds = new google.maps.LatLngBounds();
+  Object.values(results).forEach(b => {
+    const pos = extractLatLng(b.google_maps_url);
+    if (!pos) return;
+    const marker = new google.maps.Marker({
+      position: pos, map: mapObj, title: b.name,
+      icon: {path:google.maps.SymbolPath.CIRCLE, scale:7,
+             fillColor: b.email?"#30d158":"#0a84ff", fillOpacity:1,
+             strokeColor:"#000", strokeWeight:1.5},
+    });
+    const info = new google.maps.InfoWindow({
+      content: `<div style="color:#000;font-family:sans-serif;font-size:13px;min-width:180px">
+        <strong>${esc(b.name)}</strong><br>
+        <span style="color:#555">${esc(b.category)}</span><br>
+        ⭐ ${b.google_rating} (${b.google_reviews} reviews) · Score: ${b.lead_score||0}<br>
+        ${b.email ? `✉️ <a href="mailto:${esc(b.email)}">${esc(b.email)}</a>` : "No email found"}
+      </div>`,
+    });
+    marker.addListener("click", () => info.open(mapObj, marker));
+    mapMarkers.push(marker);
+    bounds.extend(pos);
+  });
+  if (mapMarkers.length) mapObj.fitBounds(bounds);
+}
+function extractLatLng(url) {
+  if (!url) return null;
+  const m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  return m ? {lat:+m[1], lng:+m[2]} : null;
+}
+
+// ── Progress ──────────────────────────────────────────────
+function updateProgress(ev) {
+  if (ev.phase === 1) {
+    document.getElementById("progStats").textContent =
+      `Checked ${ev.checked} · ${ev.found} qualifying`;
+    document.getElementById("pbarFill").classList.remove("phase2");
+    document.getElementById("pbarFill").style.width =
+      p1Total ? `${Math.min((ev.found/Math.max(p1Total,10))*100,90)}%` : "10%";
+  } else if (ev.phase === 2) {
+    p2Total = ev.total; p2Done = ev.done;
+    document.getElementById("progStats").textContent = `Email lookup ${ev.done}/${ev.total}`;
+    document.getElementById("pbarFill").classList.add("phase2");
+    document.getElementById("pbarFill").style.width = `${(ev.done/ev.total)*100}%`;
+  }
+}
+
+// ── Add / update / remove cards ───────────────────────────
+function addCard(biz) {
+  results[biz.place_id] = biz;
+  const grid = document.getElementById("grid");
+  const div  = document.createElement("div");
+  div.innerHTML = cardHTML(biz);
+  const card = div.firstElementChild;
+  card.style.animationDelay = `${Math.min(Object.keys(results).length*30,300)}ms`;
+  grid.appendChild(card);
+  document.getElementById("resCount").textContent = Object.keys(results).length;
+  document.getElementById("resToolbar").classList.add("on");
+  if (mapObj) renderMapMarkers();
+}
+
+function updateCardEmail(pid, email, source, finalScore) {
+  const biz = results[pid];
+  if (!biz) return;
+  biz.email        = email;
+  biz.email_source = source;
+  biz.email_status = "done";
+  if (finalScore !== undefined) biz.lead_score = finalScore;
+
+  const card = document.getElementById(`card-${pid}`);
+  if (!card) return;
+  card.dataset.hasEmail = email ? "1" : "0";
+  if (finalScore !== undefined) card.dataset.score = finalScore;
+
+  // Score badge
+  if (finalScore !== undefined) {
+    const sb = document.getElementById(`score-${pid}`);
+    if (sb) { sb.className = `badge ${scoreClass(finalScore)}`; sb.textContent = `${finalScore} ${scoreLabel(finalScore)}`; }
+  }
+
+  const searching = card.querySelector(".email-searching");
+  if (searching) {
+    if (email) {
+      const row = document.createElement("div");
+      row.className = "email-row";
+      row.innerHTML = `
+        <span class="ico" style="font-size:12px">✉️</span>
+        <span class="email-addr">${esc(email)}</span>
+        ${source?`<span class="email-src">via ${esc(source)}</span>`:""}
+        <button class="email-copy" title="Copy" onclick="copyEmail('${esc(email)}',this)">⧉</button>`;
+      searching.replaceWith(row);
+    } else {
+      const badge = document.createElement("div");
+      badge.className = "badge-no-email";
+      badge.innerHTML = "✉️ No email found";
+      searching.replaceWith(badge);
+    }
+  }
+
+  const linksDiv = card.querySelector(".card-links");
+  if (linksDiv && email) {
+    const existing = linksDiv.querySelector(".clink.mail");
+    const a = existing || document.createElement("a");
+    a.href = buildMailto(biz);
+    a.className = "clink mail";
+    a.textContent = "Send Email";
+    if (!existing) linksDiv.prepend(a);
+  }
+
+  if (mapObj) renderMapMarkers();
+}
+
+function removeCard(pid) {
+  const card = document.getElementById(`card-${pid}`);
+  if (card) {
+    card.classList.add("removing");
+    card.addEventListener("animationend", () => card.remove(), {once:true});
+  }
+  delete results[pid];
+  document.getElementById("resCount").textContent = Object.keys(results).length;
+}
+
+// ── Load saved leads from SQLite ──────────────────────────
+async function loadSavedResults() {
+  const city  = document.getElementById("cityInp").value.trim();
+  const state = document.getElementById("stateInp").value.trim().toUpperCase();
+  if (!city || !state) return;
+  try {
+    const rows = await (await fetch(`/api/leads?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`)).json();
+    if (!rows.length) return;
+    results = {};
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    for (const r of rows) {
+      const biz = {
+        ...r,
+        email_status: "done",
+        yelp: r.yelp_rating != null
+          ? {rating: r.yelp_rating, review_count: r.yelp_reviews, url: r.yelp_url}
+          : null,
+      };
+      results[r.place_id] = biz;
+      const div = document.createElement("div");
+      div.innerHTML = cardHTML(biz);
+      grid.appendChild(div.firstElementChild);
+    }
+    document.getElementById("resCount").textContent = rows.length;
+    document.getElementById("resToolbar").classList.add("on");
+    searchCity  = city;
+    searchState = state;
+    loadDashboard();
+  } catch {}
+}
+
+// ── Feature 9: Dashboard ─────────────────────────────────
+async function loadDashboard() {
+  const city  = document.getElementById("cityInp").value.trim();
+  const state = document.getElementById("stateInp").value.trim().toUpperCase();
+  if (!city || !state) return;
+  try {
+    const d = await (await fetch(`/api/dashboard?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`)).json();
+    renderDashboard(d);
+  } catch {}
+}
+
+function renderDashboard(d) {
+  const panel = document.getElementById("dashPanel");
+  if (!d.total) { panel.classList.remove("on"); return; }
+  panel.classList.add("on");
+
+  const total = d.total || 1;  // avoid /0
+  const s     = d.statuses || {};
+
+  // Funnel
+  const steps = [
+    {val: d.total,      lbl: "Total",    color: "#0a84ff"},
+    {val: d.has_email,  lbl: "Has Email",color: "#bf5af2"},
+    {val: s.emailed||0, lbl: "Emailed",  color: "#ffd60a"},
+    {val: s.replied||0, lbl: "Replied",  color: "#30d158"},
+    {val: s.closed||0,  lbl: "Closed",   color: "#30d158"},
+  ];
+  document.getElementById("dashFunnel").innerHTML = steps.map((st, i) =>
+    `${i>0?'<div class="funnel-arrow">›</div>':''}
+     <div class="funnel-step">
+       <div class="funnel-val">${st.val}</div>
+       <div class="funnel-bar"><div class="funnel-fill" style="background:${st.color};width:${Math.round(100*st.val/total)}%"></div></div>
+       <div class="funnel-lbl">${st.lbl}</div>
+     </div>`
+  ).join("");
+
+  // Stats grid
+  const statDefs = [
+    {id:"dash-followup", val: s.followup||0,    lbl:"Follow Up"},
+    {id:"dash-overdue",  val: d.overdue||0,      lbl:"Overdue",  cls: d.overdue>0?"dash-overdue-val":""},
+    {id:"dash-skip",     val: s.skip||0,         lbl:"Skipped"},
+    {id:"dash-score",    val: d.avg_score||0,    lbl:"Avg Score"},
+  ];
+  document.getElementById("dashStats").innerHTML = statDefs.map(st =>
+    `<div class="dash-stat">
+       <div class="dash-stat-val ${st.cls||""}">${st.val}</div>
+       <div class="dash-stat-lbl">${st.lbl}</div>
+     </div>`
+  ).join("");
+
+  // Top cats
+  const maxCat = d.top_cats?.[0]?.[1] || 1;
+  document.getElementById("dashCats").innerHTML = (d.top_cats||[]).map(([cat, n]) =>
+    `<div class="dash-cat-row">
+       <span class="dash-cat-name">${esc(cat)}</span>
+       <div class="dash-cat-bar"><div class="dash-cat-fill" style="width:${Math.round(100*n/maxCat)}%"></div></div>
+       <span class="dash-cat-n">${n}</span>
+     </div>`
+  ).join("");
+}
+
+// ── Feature 10: Multi-city queue ──────────────────────────
+function renderQueue() {
+  const sec  = document.getElementById("queueSection");
+  const list = document.getElementById("queueList");
+  if (!queue.length) { sec.classList.remove("on"); return; }
+  sec.classList.add("on");
+  list.innerHTML = queue.map((q, i) => {
+    const cls = q.done ? "q-done" : q.running ? "q-running" : "";
+    const right = q.done ? "✓" :
+                  q.running ? `<div class="spin-sm" style="margin-left:2px"></div>` :
+                  `<button class="q-rm" onclick="removeFromQueue(${i})">×</button>`;
+    return `<div class="q-chip ${cls}">${esc(q.city)}, ${esc(q.state)} ${right}</div>`;
+  }).join("");
+}
+
+function addToQueue() {
+  const city  = document.getElementById("cityInp").value.trim();
+  const state = document.getElementById("stateInp").value.trim().toUpperCase();
+  if (!city || !state) { showErr("Enter a city and state to add to the queue."); return; }
+  if (queue.find(q => q.city.toLowerCase() === city.toLowerCase() && q.state === state)) return;
+  queue.push({city, state, done: false, running: false});
+  renderQueue();
+}
+
+function removeFromQueue(i) {
+  queue.splice(i, 1);
+  renderQueue();
+}
+
+function clearQueue() {
+  queue = [];
+  queueIdx = -1;
+  renderQueue();
+}
+
+function runQueue() {
+  if (!queue.length) return;
+  queue.forEach(q => { q.done = false; q.running = false; });
+  queueIdx = 0;
+  renderQueue();
+  runNextQueued();
+}
+
+function runNextQueued() {
+  if (queueIdx < 0 || queueIdx >= queue.length) {
+    queueIdx = -1;
+    const qp = document.getElementById("progQueue");
+    if (qp) qp.style.display = "none";
+    return;
+  }
+  const q = queue[queueIdx];
+  q.running = true;
+  renderQueue();
+  document.getElementById("cityInp").value  = q.city;
+  document.getElementById("stateInp").value = q.state;
+  const qp = document.getElementById("progQueue");
+  if (qp) {
+    qp.style.display = "block";
+    qp.textContent   = `Queue: ${q.city}, ${q.state} (${queueIdx+1}/${queue.length})`;
+  }
+  // merge results from all cities — don't clear grid between queue cities
+  const cats  = selectedCats();
+  const minR  = document.getElementById("minRat").value;
+  const minRv = document.getElementById("minRev").value;
+  const email = requireEmail();
+  searchCity  = q.city;
+  searchState = q.state;
+  satData     = {};
+  document.getElementById("satPanel").classList.remove("on");
+  if (!cats.length) { skipQueueItem(); return; }
+  if (es) { es.close(); es = null; }
+  setLoading(true);
+  const p = new URLSearchParams({city:q.city, state:q.state,
+    categories:cats.join(","), min_rating:minR, min_reviews:minRv, require_email:email, use_grid:useGrid()});
+  es = new EventSource(`/api/search?${p}`);
+  es.onmessage = queueSSEHandler;
+  es.onerror   = () => { if (es&&es.readyState!==EventSource.CLOSED) { skipQueueItem(); } };
+}
+
+function skipQueueItem() {
+  if (queueIdx >= 0 && queueIdx < queue.length) {
+    queue[queueIdx].done    = true;
+    queue[queueIdx].running = false;
+    queueIdx++;
+    renderQueue();
+    if (queueIdx < queue.length) setTimeout(runNextQueued, 800);
+    else { queueIdx = -1; setLoading(false); document.getElementById("progQueue").style.display="none"; }
+  }
+}
+
+// Shared SSE handler (used both for regular search and queue)
+function handleSSEEvent(ev) {
+  switch (ev.type) {
+    case "status":       document.getElementById("progMsg").textContent = ev.message; break;
+    case "progress":     updateProgress(ev); break;
+    case "result":       addCard(ev); break;
+    case "email_update": updateCardEmail(ev.place_id, ev.email, ev.email_source, ev.lead_score); break;
+    case "remove_result":removeCard(ev.place_id); break;
+    case "saturation":   recordSaturation(ev); break;
+    case "error":        showErr(ev.message); return false;  // signal error
+    case "done":         renderSaturation(); return true;   // signal done
+  }
+  return null;  // still running
+}
+
+// ── Saturation ────────────────────────────────────────────
+function recordSaturation(ev) {
+  satData[ev.category] = {total: ev.total, no_website: ev.no_website, pct: ev.pct};
+}
+
+function renderSaturation() {
+  const entries = Object.entries(satData);
+  if (!entries.length) return;
+  entries.sort((a, b) => b[1].pct - a[1].pct);
+  const maxPct = entries[0][1].pct || 1;
+  document.getElementById("satRows").innerHTML = entries.map(([cat, s]) => {
+    const color = s.pct >= 60 ? "var(--green)" : s.pct >= 35 ? "var(--orange)" : "var(--red)";
+    return `<div class="sat-row">
+      <span class="sat-cat">${esc(cat)}</span>
+      <div class="sat-bar-wrap"><div class="sat-bar" style="width:${Math.round(s.pct/maxPct*100)}%;background:${color}"></div></div>
+      <span class="sat-pct" style="color:${color}">${s.pct}%</span>
+      <span class="sat-n">${s.no_website}/${s.total}</span>
+    </div>`;
+  }).join("");
+  // Best pitch stat
+  const [topCat, topS] = entries[0];
+  const cityName = searchCity || "this city";
+  document.getElementById("satPitch").textContent =
+    `Pitch insight: Only ${100 - topS.pct}% of ${topCat.toLowerCase()} in ${cityName} have a website — ` +
+    `${topS.no_website} out of ${topS.total} are reachable prospects right now.`;
+  document.getElementById("satPitch").style.display = "";
+  document.getElementById("satPanel").classList.add("on");
+}
+
+function queueSSEHandler({data}) {
+  const ev = JSON.parse(data);
+  const result = handleSSEEvent(ev);
+  if (result === true) {  // done
+    if (es) { es.close(); es = null; }
+    if (!Object.keys(results).length) document.getElementById("emptyState").classList.add("on");
+    skipQueueItem();
+  } else if (result === false) {  // error
+    if (es) { es.close(); es = null; }
+    skipQueueItem();
+  }
+}
+
+// ── Export CSV ────────────────────────────────────────────
+function exportCSV() {
+  const rows = Object.values(results);
+  if (!rows.length) return;
+  const hdrs = ["Name","Category","City","State","Presence","Lead Score","Email","Email Source",
+                "Google Rating","Google Reviews","Yelp Rating","Yelp Reviews",
+                "Price Level","Review Recency","Owner Responses",
+                "Address","Phone","Google Maps URL","Lead Status","Notes"];
+  const data = rows.map(b => [
+    b.name, b.category, b.city||searchCity, b.state||searchState,
+    b.presence||"none", b.lead_score||0,
+    b.email||"", b.email_source||"",
+    b.google_rating, b.google_reviews,
+    b.yelp?.rating ?? b.yelp_rating ?? "",
+    b.yelp?.review_count ?? b.yelp_reviews ?? "",
+    b.price_level ? (PRICE_MAP[b.price_level]||b.price_level) : "",
+    b.review_recency||"", b.owner_responses||0,
+    b.address, b.phone||"",
+    b.google_maps_url||"",
+    b.status||"", b.notes||"",
+  ]);
+  const csv = [hdrs,...data]
+    .map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(","))
+    .join("\n");
+  const a = Object.assign(document.createElement("a"), {
+    href: URL.createObjectURL(new Blob([csv],{type:"text/csv"})),
+    download: `bizfinder-${searchCity||"results"}-${Date.now()}.csv`,
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+async function exportAllCSV() {
+  const city  = document.getElementById("cityInp").value.trim();
+  const state = document.getElementById("stateInp").value.trim().toUpperCase();
+  try {
+    const params = new URLSearchParams();
+    if (city)  params.set("city",  city);
+    if (state) params.set("state", state);
+    const rows = await (await fetch(`/api/leads?${params}`)).json();
+    if (!rows.length) { alert("No saved leads found for this location."); return; }
+    const hdrs = ["Name","Category","City","State","Presence","Lead Score","Email","Email Source",
+                  "Email MX Valid","Google Rating","Google Reviews","Yelp Rating","Yelp Reviews",
+                  "Price Level","Review Recency","Owner Responses",
+                  "Address","Phone","Google Maps URL","Lead Status","Status Date","Notes"];
+    const data = rows.map(b => [
+      b.name, b.category, b.city||"", b.state||"",
+      b.presence||"none", b.lead_score||0,
+      b.email||"", b.email_source||"",
+      b.email_mx_valid === 1 ? "valid" : b.email_mx_valid === 0 ? "invalid" : "",
+      b.google_rating, b.google_reviews,
+      b.yelp_rating ?? "", b.yelp_reviews ?? "",
+      b.price_level ? (PRICE_MAP[b.price_level]||b.price_level) : "",
+      b.review_recency||"", b.owner_responses||0,
+      b.address||"", b.phone||"",
+      b.google_maps_url||"",
+      b.status||"", b.status_date||"", b.notes||"",
+    ]);
+    const csv = [hdrs,...data]
+      .map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(","))
+      .join("\n");
+    const tag  = city ? `${city.toLowerCase()}-${state.toLowerCase()}` : "all";
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(new Blob([csv],{type:"text/csv"})),
+      download: `bizfinder-db-${tag}-${Date.now()}.csv`,
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+  } catch(e) { alert("Export failed: " + e.message); }
+}
+
+// ── Email template modal ──────────────────────────────────
+function openTemplate() {
+  document.getElementById("tplSubject").value = lsGet(LS_TPL_SUB) || DEFAULT_SUBJECT;
+  document.getElementById("tplBody").value    = lsGet(LS_TPL_BODY) || DEFAULT_BODY;
+  document.getElementById("tplModal").classList.add("on");
+}
+function closeTpl() { document.getElementById("tplModal").classList.remove("on"); }
+function saveTpl() {
+  lsSet(LS_TPL_SUB,  document.getElementById("tplSubject").value);
+  lsSet(LS_TPL_BODY, document.getElementById("tplBody").value);
+  closeTpl();
+  Object.values(results).forEach(b => {
+    if (!b.email) return;
+    const a = document.querySelector(`#card-${b.place_id} .clink.mail`);
+    if (a) a.href = buildMailto(b);
+  });
+}
+
+// ── Error banner ──────────────────────────────────────────
+function showErr(msg) {
+  const el = document.getElementById("errBanner");
+  el.innerHTML = `<strong>Error — </strong>${esc(msg)}`;
+  el.classList.add("on");
+}
+
+// ── Search lifecycle ──────────────────────────────────────
+function startSearch() {
+  const city  = document.getElementById("cityInp").value.trim();
+  const state = document.getElementById("stateInp").value.trim().toUpperCase();
+  const cats  = selectedCats();
+  const minR  = document.getElementById("minRat").value;
+  const minRv = document.getElementById("minRev").value;
+  const email = requireEmail();
+
+  if (!city || !state) { showErr("Please enter both a city and state."); return; }
+  if (!cats.length)    { showErr("Please select at least one category."); return; }
+
+  searchCity  = city;
+  searchState = state;
+  results     = {};
+  satData     = {};
+  document.getElementById("satPanel").classList.remove("on");
+  p1Total     = cats.length * 20;
+  p2Total     = 0; p2Done = 0;
+
+  document.getElementById("grid").innerHTML      = "";
+  document.getElementById("emptyState").classList.remove("on");
+  document.getElementById("errBanner").classList.remove("on");
+  document.getElementById("resToolbar").classList.remove("on");
+  document.getElementById("resCount").textContent = "0";
+  document.getElementById("pbarFill").style.width  = "0%";
+  document.getElementById("pbarFill").classList.remove("phase2");
+  document.getElementById("emptyTxt").textContent = email
+    ? "No businesses with a discoverable email were found. Try turning off the email filter or broadening the location."
+    : "Try broadening your search — lower the minimum rating, add more categories, or check a neighboring city.";
+  if (mapObj) { mapMarkers.forEach(m => m.setMap(null)); mapMarkers = []; }
+
+  if (es) { es.close(); es = null; }
+  setLoading(true);
+
+  const p = new URLSearchParams({city, state, categories:cats.join(","),
+    min_rating:minR, min_reviews:minRv, require_email:email, use_grid:useGrid()});
+  es = new EventSource(`/api/search?${p}`);
+  es.onmessage = ({data}) => {
+    const ev = JSON.parse(data);
+    const result = handleSSEEvent(ev);
+    if (result === true) {  // done
+      finish();
+      if (!Object.keys(results).length) document.getElementById("emptyState").classList.add("on");
+      loadDashboard();
+    } else if (result === false) {
+      finish();
+    }
+  };
+  es.onerror = () => {
+    if (es && es.readyState !== EventSource.CLOSED) { showErr("Connection lost. Check API keys."); finish(); }
+  };
+}
+
+function stopSearch() {
+  if (es) { es.close(); es = null; }
+  queueIdx = -1;  // abort any running queue
+  finish();
+  if (!Object.keys(results).length) document.getElementById("emptyState").classList.add("on");
+}
+
+function finish() {
+  setLoading(false);
+  document.getElementById("pbarFill").style.width = "100%";
+}
+
+function setLoading(on) {
+  document.getElementById("progWrap").classList.toggle("on", on);
+  document.getElementById("searchBtn").disabled    = on;
+  document.getElementById("queueBtn").disabled     = on;
+  document.getElementById("stopBtn").style.display = on ? "block" : "none";
+}
+
+// ── API status ────────────────────────────────────────────
+async function checkStatus() {
+  try {
+    const s     = await (await fetch("/api/status")).json();
+    const badge = document.getElementById("apiStatus");
+    if (s.google) {
+      badge.textContent       = s.yelp ? "● Google + Yelp" : "● Google only";
+      badge.style.color       = s.yelp ? "var(--green)" : "var(--orange)";
+      badge.style.borderColor = s.yelp ? "rgba(48,209,88,.4)" : "rgba(255,159,10,.4)";
+    } else {
+      badge.textContent       = "● No API key";
+      badge.style.color       = "var(--red)";
+      badge.style.borderColor = "rgba(255,69,58,.4)";
+      document.getElementById("warnBanner").classList.add("on");
+    }
+  } catch {}
+}
+
+// ── Keyboard ──────────────────────────────────────────────
+["cityInp","stateInp"].forEach(id =>
+  document.getElementById(id).addEventListener("keydown", e => {
+    if (e.key === "Enter") startSearch();
+  })
+);
+document.getElementById("stateInp").addEventListener("input", function() {
+  this.value = this.value.toUpperCase();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeTpl(); });
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", updateCostEst));
+
+// Auto-load saved leads + dashboard when state field is filled
+document.getElementById("stateInp").addEventListener("change", () => {
+  const city  = document.getElementById("cityInp").value.trim();
+  const state = document.getElementById("stateInp").value.trim();
+  if (city && state) loadSavedResults();
+});
+
+// ── Init ──────────────────────────────────────────────────
+checkStatus();
+</script>
+</body>
+</html>
