@@ -1,4 +1,4 @@
-import os, re, json, time, socket, math
+import os, re, json, time, socket, math, sys
 import requests
 import dns.resolver
 from html import unescape
@@ -9,8 +9,13 @@ from dotenv import load_dotenv
 import scoring
 import database as db
 
-load_dotenv()
-app = Flask(__name__)
+# ── Frozen-exe path resolution (PyInstaller) ──────────────────────────────────
+_FROZEN   = getattr(sys, 'frozen', False)
+_BASE_DIR = sys._MEIPASS if _FROZEN else os.path.dirname(os.path.abspath(__file__))
+_EXE_DIR  = os.path.dirname(sys.executable) if _FROZEN else _BASE_DIR
+
+load_dotenv(dotenv_path=os.path.join(_EXE_DIR, '.env'))
+app = Flask(__name__, template_folder=os.path.join(_BASE_DIR, 'templates'))
 db.init_db()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
@@ -52,6 +57,18 @@ SOCIAL_DOMAINS = {
     "threads.net",
 }
 
+# ─── Utilities ────────────────────────────────────────────────────────────────
+
+def _extract_lat_lng(url: str):
+    """Return (lat, lng) floats from a Google Maps URL, or (None, None)."""
+    if not url:
+        return None, None
+    m = re.search(r'/@(-?\d+\.\d+),(-?\d+\.\d+)', url)
+    if m:
+        return float(m.group(1)), float(m.group(2))
+    return None, None
+
+
 # ─── Web presence ─────────────────────────────────────────────────────────────
 
 def web_presence(url: str) -> str:
@@ -59,7 +76,7 @@ def web_presence(url: str) -> str:
     if not url:
         return "none"
     try:
-        domain = urlparse(url).netloc.lower().lstrip("www.")
+        domain = urlparse(url).netloc.lower().removeprefix("www.")
         for sd in SOCIAL_DOMAINS:
             if domain == sd or domain.endswith("." + sd):
                 return "social"
@@ -172,7 +189,7 @@ def _src_manta(name, city, state):
     return [("Manta", em) for em in _extract_emails(html)]
 
 
-def find_email(name: str, city: str, state: str, _yelp_url=None) -> tuple:
+def find_email(name: str, city: str, state: str) -> tuple:
     """
     Queries all three sources in parallel, scores every candidate by domain
     relevance to the business name, and returns the best (email, source) or
@@ -242,6 +259,25 @@ def _parse_owner_responses(reviews: list) -> int:
     return sum(1 for r in reviews if r.get("owner_reply"))
 
 
+def _extract_review_snippets(reviews: list) -> list:
+    """Return up to 5 best review texts (4-5 stars, >= 40 chars), longest first."""
+    if not reviews:
+        return []
+    good = [r for r in reviews
+            if r.get("rating", 0) >= 4 and len(r.get("text", "")) >= 40]
+    good.sort(key=lambda r: (r.get("rating", 0), len(r.get("text", ""))), reverse=True)
+    return [r["text"][:600] for r in good[:5]]
+
+
+def _format_hours(details: dict) -> str:
+    """Return weekday hours as a newline-joined string, or empty string."""
+    oh = details.get("opening_hours", {})
+    if not oh:
+        return ""
+    texts = oh.get("weekday_text", [])
+    return "\n".join(texts) if texts else ""
+
+
 # ─── Google Places ────────────────────────────────────────────────────────────
 
 def google_text_search(query: str, location: str, page_token: str = None) -> dict:
@@ -266,7 +302,7 @@ def google_place_details(place_id: str) -> dict:
                 "fields": (
                     "name,rating,user_ratings_total,website,"
                     "formatted_address,formatted_phone_number,business_status,url,"
-                    "price_level,reviews"
+                    "price_level,reviews,opening_hours"
                 ),
                 "key": GOOGLE_API_KEY,
             },
@@ -386,13 +422,17 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
     cat_stats: dict[str, dict] = {}
 
     # ── Grid search setup ─────────────────────────────────────
-    grid_points = [None]   # None sentinel → text search
-    radius      = 8_000
+    grid_points  = [None]   # None sentinel → text search
+    radius       = 8_000
+    center_lat   = None
+    center_lng   = None
     if use_grid:
         geo = geocode_city(city, state)
         if geo:
             grid_points = make_grid(geo, 3)
             radius      = _grid_radius_m(geo, 3)
+            center_lat  = geo["lat"]
+            center_lng  = geo["lng"]
             yield {"type": "status",
                    "message": f"Grid search: 3×3 ({len(grid_points)} zones) over {city}…"}
         else:
@@ -459,9 +499,11 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
                         continue
 
                     # Parse reviews data
-                    reviews         = details.get("reviews") or []
-                    owner_responses = _parse_owner_responses(reviews)
-                    review_recency  = _parse_review_recency(reviews)
+                    reviews          = details.get("reviews") or []
+                    owner_responses  = _parse_owner_responses(reviews)
+                    review_recency   = _parse_review_recency(reviews)
+                    review_snippets  = _extract_review_snippets(reviews)
+                    opening_hours    = _format_hours(details)
                     price_level     = details.get("price_level")  # int 1-4 or None
 
                     yelp_data = yelp_match(name, street_from_address(address), city, state)
@@ -477,6 +519,9 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
                         review_recency  = review_recency,
                     )
 
+                    maps_url      = details.get("url", "")
+                    _lat, _lng    = _extract_lat_lng(maps_url)
+
                     biz = {
                         "place_id":        pid,
                         "name":            name,
@@ -484,7 +529,9 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
                         "phone":           details.get("formatted_phone_number", ""),
                         "google_rating":   g_rating,
                         "google_reviews":  g_reviews,
-                        "google_maps_url": details.get("url", ""),
+                        "google_maps_url": maps_url,
+                        "lat":             _lat,
+                        "lng":             _lng,
                         "category":        label,
                         "category_color":  color,
                         "yelp":            yelp_data,
@@ -492,9 +539,11 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
                         "presence":        presence,
                         "social_url":      details.get("website", "") if presence == "social" else "",
                         "price_level":     price_level,
-                        "owner_responses": owner_responses,
-                        "review_recency":  review_recency,
-                        "lead_score":      pre_score,
+                        "owner_responses":  owner_responses,
+                        "review_recency":   review_recency,
+                        "review_snippets":  review_snippets,
+                        "opening_hours":    opening_hours,
+                        "lead_score":       pre_score,
                     }
                     pending.append(biz)
 
@@ -525,7 +574,7 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
             }
 
     if not pending:
-        yield {"type": "done"}
+        yield {"type": "done", "center_lat": center_lat, "center_lng": center_lng}
         return
 
     # ── Phase 2: Parallel email lookup ────────────────────────
@@ -536,7 +585,7 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
 
     with ThreadPoolExecutor(max_workers=6) as ex:
         fut_map = {
-            ex.submit(find_email, b["name"], city, state, b.get("yelp_url")): b
+            ex.submit(find_email, b["name"], city, state): b
             for b in pending
         }
         done_count = 0
@@ -578,6 +627,8 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
                 "google_rating":   biz["google_rating"],
                 "google_reviews":  biz["google_reviews"],
                 "google_maps_url": biz.get("google_maps_url", ""),
+                "lat":             biz.get("lat"),
+                "lng":             biz.get("lng"),
                 "category":        biz["category"],
                 "category_color":  biz["category_color"],
                 "presence":        biz["presence"],
@@ -586,9 +637,11 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
                 "email_source":    source,
                 "email_mx_valid":  mx_valid,
                 "price_level":     biz.get("price_level"),
-                "owner_responses": biz.get("owner_responses", 0),
-                "review_recency":  biz.get("review_recency"),
-                "yelp_rating":     biz["yelp"].get("rating")        if biz.get("yelp") else None,
+                "owner_responses":  biz.get("owner_responses", 0),
+                "review_recency":   biz.get("review_recency"),
+                "review_snippets":  json.dumps(biz.get("review_snippets") or []),
+                "opening_hours":    biz.get("opening_hours", ""),
+                "yelp_rating":      biz["yelp"].get("rating")       if biz.get("yelp") else None,
                 "yelp_reviews":    biz["yelp"].get("review_count")  if biz.get("yelp") else None,
                 "yelp_url":        biz.get("yelp_url"),
                 "lead_score":      final_score,
@@ -609,7 +662,7 @@ def search_stream(city, state, selected, min_rating, min_reviews, require_email,
             yield {"type": "progress", "phase": 2,
                    "done": done_count, "total": len(pending)}
 
-    yield {"type": "done"}
+    yield {"type": "done", "center_lat": center_lat, "center_lng": center_lng}
 
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
@@ -623,7 +676,15 @@ def index():
 
 @app.route("/api/maps-js")
 def maps_js_proxy():
-    """Proxy Google Maps JS so the API key is never exposed in the browser."""
+    """
+    Indirection for loading the Google Maps JS bootstrap.
+
+    NOTE: This is a 302 redirect, so the browser still sees the API key in
+    the final Location URL — it is NOT a secrecy layer. The key must be
+    secured the proper way: via HTTP-referrer / application restrictions in
+    the Google Cloud Console. Keeping this route means the key isn't
+    hard-coded into index.html and can be rotated server-side.
+    """
     cb = request.args.get("callback", "onMapReady")
     if not re.match(r'^[A-Za-z_][A-Za-z0-9_.]*$', cb):
         return "Invalid callback", 400
@@ -689,12 +750,29 @@ def api_leads():
 @app.route("/api/leads/<place_id>", methods=["PATCH"])
 def api_patch_lead(place_id):
     data    = request.get_json(silent=True) or {}
-    allowed = {"status", "notes", "email"}
+    allowed = {"status", "notes", "email", "snooze_until"}
     kwargs  = {k: v for k, v in data.items() if k in allowed}
     if not kwargs:
         return jsonify({"error": "No patchable fields provided"}), 400
     db.patch_lead(place_id, **kwargs)
     return jsonify({"ok": True})
+
+
+# ─── Geocode API ─────────────────────────────────────────────────────────────
+
+@app.route("/api/geocode")
+def api_geocode():
+    """Return {lat, lng} for a city/state pair (uses Google Geocoding API)."""
+    city  = request.args.get("city",  "").strip()
+    state = request.args.get("state", "").strip()
+    if not city or not state:
+        return jsonify({"error": "city and state required"}), 400
+    if not GOOGLE_API_KEY:
+        return jsonify({"error": "Google API key not configured"}), 503
+    geo = geocode_city(city, state)
+    if not geo:
+        return jsonify({"error": "Could not geocode location"}), 404
+    return jsonify({"lat": geo["lat"], "lng": geo["lng"]})
 
 
 # ─── DNC API ─────────────────────────────────────────────────────────────────

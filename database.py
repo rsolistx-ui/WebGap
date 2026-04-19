@@ -1,9 +1,20 @@
 """SQLite persistence layer — pure stdlib, no Flask imports."""
-import sqlite3, re
-from datetime import datetime, date
+import sqlite3, re, sys
+from datetime import datetime, date, timezone
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "bizfinder.db"
+
+def _utcnow_iso() -> str:
+    """Timezone-aware UTC timestamp (ISO 8601, seconds precision)."""
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+# When frozen by PyInstaller, store the DB next to the .exe (persistent),
+# not inside _MEIPASS (which is a temp dir that gets deleted on exit).
+if getattr(sys, 'frozen', False):
+    DB_PATH = Path(sys.executable).parent / "bizfinder.db"
+else:
+    DB_PATH = Path(__file__).parent / "bizfinder.db"
 
 # ── Schema ─────────────────────────────────────────────────────────────────────
 
@@ -28,6 +39,8 @@ CREATE TABLE IF NOT EXISTS leads (
     price_level         INTEGER,
     owner_responses     INTEGER DEFAULT 0,
     review_recency      TEXT,
+    review_snippets     TEXT,
+    opening_hours       TEXT,
     yelp_rating         REAL,
     yelp_reviews        INTEGER,
     yelp_url            TEXT,
@@ -36,6 +49,9 @@ CREATE TABLE IF NOT EXISTS leads (
     status_date         TEXT,
     notes               TEXT DEFAULT '',
     do_not_contact      INTEGER DEFAULT 0,
+    snooze_until        TEXT,
+    lat                 REAL,
+    lng                 REAL,
     created_at          TEXT DEFAULT (datetime('now')),
     updated_at          TEXT DEFAULT (datetime('now'))
 );
@@ -68,8 +84,22 @@ def _conn() -> sqlite3.Connection:
 
 
 def init_db():
+    """Create tables if missing, then patch in any columns added after a
+    previous install. Idempotent — safe to call on every startup."""
     with _conn() as c:
         c.executescript(SCHEMA)
+        # Backfill columns for databases created by older versions.
+        existing = {row[1] for row in c.execute("PRAGMA table_info(leads)").fetchall()}
+        legacy_cols = {
+            "snooze_until":    "TEXT",
+            "lat":             "REAL",
+            "lng":             "REAL",
+            "review_snippets": "TEXT",
+            "opening_hours":   "TEXT",
+        }
+        for col, col_type in legacy_cols.items():
+            if col not in existing:
+                c.execute(f"ALTER TABLE leads ADD COLUMN {col} {col_type}")
 
 
 # ── Leads ──────────────────────────────────────────────────────────────────────
@@ -78,7 +108,7 @@ def upsert_lead(lead: dict):
     """INSERT OR REPLACE, preserving existing status / notes / do_not_contact."""
     with _conn() as c:
         existing = c.execute(
-            "SELECT status, status_date, notes, do_not_contact FROM leads WHERE place_id=?",
+            "SELECT status, status_date, notes, do_not_contact, snooze_until FROM leads WHERE place_id=?",
             (lead["place_id"],),
         ).fetchone()
         if existing:
@@ -89,9 +119,11 @@ def upsert_lead(lead: dict):
                 lead["notes"]          = existing["notes"] or ""
             if lead.get("do_not_contact") is None:
                 lead["do_not_contact"] = existing["do_not_contact"]
+            if lead.get("snooze_until") is None:
+                lead["snooze_until"]   = existing["snooze_until"]
         lead.setdefault("notes",           "")
         lead.setdefault("do_not_contact",  0)
-        lead["updated_at"] = datetime.utcnow().isoformat(timespec="seconds")
+        lead["updated_at"] = _utcnow_iso()
         cols         = list(lead.keys())
         placeholders = ", ".join(["?"] * len(cols))
         col_names    = ", ".join(cols)
@@ -106,8 +138,8 @@ def patch_lead(place_id: str, **kwargs):
     if not kwargs:
         return
     if "status" in kwargs:
-        kwargs["status_date"] = datetime.utcnow().isoformat(timespec="seconds")
-    kwargs["updated_at"] = datetime.utcnow().isoformat(timespec="seconds")
+        kwargs["status_date"] = _utcnow_iso()
+    kwargs["updated_at"] = _utcnow_iso()
     sets = ", ".join(f"{k}=?" for k in kwargs)
     vals = list(kwargs.values()) + [place_id]
     with _conn() as c:
@@ -120,6 +152,14 @@ def _compute_overdue(row: dict) -> bool:
     sd = row.get("status_date")
     if not sd:
         return False
+    # Respect snooze: if snoozed until a future date, not overdue yet
+    snooze = row.get("snooze_until")
+    if snooze:
+        try:
+            if date.fromisoformat(snooze[:10]) >= date.today():
+                return False
+        except Exception:
+            pass
     try:
         return (date.today() - date.fromisoformat(sd[:10])).days >= 3
     except Exception:
@@ -169,7 +209,7 @@ def is_dnc(place_id: str) -> bool:
 
 
 def add_dnc(place_id: str, name: str, reason: str = ""):
-    now = datetime.utcnow().isoformat(timespec="seconds")
+    now = _utcnow_iso()
     with _conn() as c:
         c.execute(
             "INSERT OR REPLACE INTO dnc_list (place_id, name, reason) VALUES (?,?,?)",
@@ -182,7 +222,7 @@ def add_dnc(place_id: str, name: str, reason: str = ""):
 
 
 def remove_dnc(place_id: str):
-    now = datetime.utcnow().isoformat(timespec="seconds")
+    now = _utcnow_iso()
     with _conn() as c:
         c.execute("DELETE FROM dnc_list WHERE place_id=?", (place_id,))
         c.execute(
@@ -268,6 +308,23 @@ def get_dashboard(city: str = None, state: str = None, category: str = None) -> 
     statuses  = {s: sum(1 for r in rows if r.get("status") == s)
                  for s in ("emailed", "followup", "replied", "closed", "skip")}
     overdue   = sum(1 for r in rows if _compute_overdue(r))
+    avg_score = (round(sum(r.get("lead_score") or 0 for r in rows) / total, 1)
+                 if total else 0)
+
+    top_cats: dict[str, int] = {}
+    for r in rows:
+        k = r.get("category", "?")
+        top_cats[k] = top_cats.get(k, 0) + 1
+
+    return {
+        "total":     total,
+        "has_email": has_email,
+        "statuses":  statuses,
+        "overdue":   overdue,
+        "avg_score": avg_score,
+        "top_cats":  sorted(top_cats.items(), key=lambda x: -x[1])[:5],
+    }
+te_overdue(r))
     avg_score = (round(sum(r.get("lead_score") or 0 for r in rows) / total, 1)
                  if total else 0)
 

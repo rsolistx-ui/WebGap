@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>BizFinder Pro</title>
+  <title>WebGap</title>
   <style>
   :root{
     --bg-0:#000;--bg-1:#1c1c1e;--bg-2:#2c2c2e;--bg-3:#3a3a3c;
@@ -227,6 +227,14 @@
   .email-searching{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--lbl-3);padding:6px 0 3px;margin-top:3px;}
   .spin-sm{width:12px;height:12px;border:1.5px solid rgba(10,132,255,.25);border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite;flex-shrink:0;}
   .badge-no-email{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--lbl-3);background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-sm);padding:5px 9px;margin-top:3px;}
+  .email-mx-ok{font-size:9px;font-weight:700;color:#30d158;background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.3);border-radius:4px;padding:1px 5px;white-space:nowrap;flex-shrink:0;}
+  .email-mx-fail{font-size:9px;font-weight:700;color:#ff453a;background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.3);border-radius:4px;padding:1px 5px;white-space:nowrap;flex-shrink:0;}
+  .badge-snoozed{background:rgba(90,200,250,.12);color:#5ac8fa;border:1px solid rgba(90,200,250,.3);}
+  .act-snooze{color:var(--lbl-2);}
+  .snooze-picker{position:absolute;z-index:200;background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);box-shadow:0 8px 24px rgba(0,0,0,.4);min-width:140px;overflow:hidden;right:0;top:calc(100% + 4px);}
+  .snooze-opt{padding:9px 14px;font-size:13px;color:var(--lbl-1);cursor:pointer;transition:background .1s;}
+  .snooze-opt:hover{background:var(--bg-3);}
+  .snooze-clear{color:var(--red);border-top:1px solid var(--sep-l);}
 
   /* card links */
   .card-links{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap;}
@@ -263,7 +271,7 @@
   .notes-saved{font-size:10px;color:var(--green);opacity:0;transition:opacity .3s;}
 
   /* ── Feature 8: Card action buttons ── */
-  .card-actions{display:flex;gap:6px;margin-top:8px;}
+  .card-actions{display:flex;gap:6px;margin-top:8px;position:relative;}
   .act-btn{flex:1;padding:6px 8px;border-radius:var(--r-sm);border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);font-family:var(--font);font-size:10px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s;white-space:nowrap;}
   .act-btn:hover{opacity:.8;}
   .act-btn:disabled{opacity:.4;cursor:not-allowed;}
@@ -334,7 +342,131 @@
     .res-toolbar{gap:7px;}
     .dash-stats{grid-template-columns:repeat(3,1fr);}
   }
-  </style>
+  
+/* ── Outreach Hub ─────────────────────────────────────── */
+.ohub{max-width:760px;width:95vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;}
+.ohub-head{padding-bottom:14px;border-bottom:1px solid var(--sep-l);margin-bottom:14px;}
+.ohub-biz{font-size:16px;font-weight:700;color:var(--lbl-1);}
+.ohub-meta{font-size:12px;color:var(--lbl-3);margin-top:3px;}
+.ohub-tabs{display:flex;gap:2px;border-bottom:1px solid var(--sep-l);margin-bottom:16px;overflow-x:auto;}
+.ohub-tab{padding:8px 16px;font-size:12px;font-weight:600;color:var(--lbl-3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;white-space:nowrap;}
+.ohub-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.ohub-panels{flex:1;overflow-y:auto;padding-right:2px;}
+.ohub-panel{display:none;}
+.ohub-panel.active{display:block;}
+.ohub-lbl{font-size:11px;font-weight:700;color:var(--lbl-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;margin-top:14px;}
+.ohub-lbl:first-child{margin-top:0;}
+.ohub-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.ohub-chip{padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);transition:all .15s;white-space:nowrap;}
+.ohub-chip.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.ohub-chip.red{border-color:#ff453a55;color:#ff453a;}
+.ohub-chip.red.active{background:#ff453a;border-color:#ff453a;color:#fff;}
+.ohub-chip.grn.active{background:#30d158;border-color:#30d158;color:#fff;}
+.ohub-inp{width:100%;background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-sm);padding:9px 12px;color:var(--lbl-1);font-family:var(--font);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:10px;}
+.ohub-inp:focus{border-color:var(--blue);}
+.ohub-ta{width:100%;background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:12px;color:var(--lbl-1);font-family:var(--font);font-size:13px;line-height:1.65;outline:none;resize:vertical;box-sizing:border-box;}
+.ohub-ta:focus{border-color:var(--blue);}
+.ohub-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+button.clink{cursor:pointer;font-family:var(--font);}
+.ohub-btn{padding:7px 16px;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);transition:all .15s;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;}
+.ohub-btn:hover{background:var(--bg-3);}
+.ohub-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+.ohub-btn.primary:hover{opacity:.85;}
+.ohub-btn.green{background:#30d158;color:#fff;border-color:#30d158;}
+.ohub-btn.green:hover{opacity:.85;}
+.ohub-settings{margin-top:16px;padding-top:16px;border-top:1px solid var(--sep-l);}
+.ohub-settings-row{display:flex;gap:10px;flex-wrap:wrap;}
+.ohub-settings-field{display:flex;flex-direction:column;flex:1;min-width:130px;gap:4px;}
+.ohub-settings-lbl{font-size:11px;color:var(--lbl-3);font-weight:600;}
+.ohub-reply-block{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:14px;margin-bottom:12px;}
+.ohub-reply-scenario{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.ohub-reply-body{font-size:13px;color:var(--lbl-1);line-height:1.65;white-space:pre-wrap;margin-bottom:10px;}
+.ohub-tip{font-size:12px;color:var(--lbl-3);line-height:1.5;margin-top:12px;padding:10px 14px;border-radius:var(--r-sm);background:var(--bg-2);border-left:3px solid var(--blue);}
+.ohub-tip:first-child{margin-top:0;}
+/* Outreach Hub - head / body layout */
+.ohub-head{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--sep-l);}
+.ohub-body{flex:1;overflow-y:auto;padding:16px 20px 20px;}
+/* Template picker cards */
+.ohub-tpl-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.ohub-tpl-card{flex:1;min-width:100px;max-width:140px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--sep-l);background:var(--bg-2);cursor:pointer;transition:all .15s;text-align:center;}
+.ohub-tpl-card:hover{border-color:var(--blue);background:var(--bg-3);}
+.ohub-tpl-card.active{border-color:var(--blue);background:rgba(10,132,255,.12);}
+.ohub-tpl-name{font-size:12px;font-weight:700;color:var(--lbl-1);margin-bottom:4px;}
+.ohub-tpl-tag{font-size:10px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.05em;}
+/* Outlook / Gmail buttons */
+.ohub-btn-out{background:#0078d4;color:#fff;border-color:#0078d4;}
+.ohub-btn-out:hover{opacity:.85;background:#0078d4;}
+.ohub-btn-gm{background:#ea4335;color:#fff;border-color:#ea4335;}
+.ohub-btn-gm:hover{opacity:.85;background:#ea4335;}
+/* Reply sections */
+.ohub-reply-section{margin-bottom:20px;}
+.ohub-reply-section.pos .ohub-reply-label{color:#30d158;}
+.ohub-reply-section.hes .ohub-reply-label{color:#ff9f0a;}
+.ohub-reply-section.obj .ohub-reply-label{color:#ff453a;}
+.ohub-reply-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--sep-l);}
+.ohub-reply-item{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:12px 14px;margin-bottom:10px;}
+.ohub-reply-title{font-size:12px;font-weight:700;color:var(--lbl-2);margin-bottom:8px;}
+/* Observation edit field */
+.ohub-obs-wrap{background:rgba(10,132,255,.07);border:1px solid rgba(10,132,255,.2);border-radius:var(--r-md);padding:12px 14px;margin-bottom:12px;}
+.ohub-obs-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:6px;}
+.ohub-obs-hint{font-size:11px;color:var(--lbl-3);margin-top:5px;line-height:1.4;}
+/* Quick actions footer */
+.ohub-footer{display:flex;gap:8px;padding:12px 20px;background:var(--bg-2);border-top:1px solid var(--sep-l);flex-wrap:wrap;align-items:center;}
+.ohub-footer-lbl{font-size:11px;color:var(--lbl-3);margin-right:2px;}
+/* Preview URL */
+.ohub-preview-wrap{display:flex;gap:8px;align-items:center;margin-top:12px;padding:10px 12px;background:rgba(48,209,88,.07);border:1px solid rgba(48,209,88,.2);border-radius:var(--r-md);}
+.ohub-preview-lbl{font-size:11px;font-weight:700;color:var(--green);white-space:nowrap;}
+/* Pre-flight checklist */
+.ohub-checklist{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:12px 14px;margin-bottom:14px;}
+.ohub-checklist-title{font-size:11px;font-weight:700;color:var(--lbl-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.ohub-checklist-body{display:none;}
+.ohub-checklist-body.open{display:block;}
+.ohub-check-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:12px;color:var(--lbl-2);line-height:1.4;}
+.ohub-check-item input[type=checkbox]{margin-top:2px;accent-color:var(--green);width:14px;height:14px;flex-shrink:0;}
+.ohub-check-item.checked{color:var(--lbl-3);text-decoration:line-through;}
+/* Optional prompt fields */
+.ohub-opt-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.ohub-opt-label{font-size:11px;font-weight:600;color:var(--lbl-3);margin-bottom:4px;}
+/* Call script tab */
+.ohub-call-section{background:var(--bg-2);border:1px solid var(--sep-l);border-radius:var(--r-md);padding:14px;margin-bottom:14px;}
+.ohub-call-title{font-size:12px;font-weight:700;color:var(--lbl-2);margin-bottom:8px;}
+.ohub-call-body{font-size:13px;color:var(--lbl-1);line-height:1.7;white-space:pre-wrap;}
+/* Delivery tab */
+.ohub-delivery-section{margin-bottom:18px;}
+.ohub-delivery-title{font-size:12px;font-weight:700;color:var(--lbl-1);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--sep-l);}
+.ohub-delivery-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:12px;color:var(--lbl-2);line-height:1.4;}
+.ohub-delivery-item input[type=checkbox]{margin-top:2px;accent-color:var(--green);flex-shrink:0;}
+.ohub-delivery-item.done{color:var(--lbl-3);text-decoration:line-through;}
+.ohub-upsell-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep-l);font-size:12px;color:var(--lbl-2);}
+.ohub-upsell-item:last-child{border-bottom:none;}
+.ohub-upsell-check{accent-color:var(--purple);width:14px;height:14px;}
+/* Word count + personalization score */
+.ohub-email-meta{display:flex;gap:14px;align-items:center;margin-top:5px;font-size:11px;color:var(--lbl-3);}
+.ohub-score{display:flex;align-items:center;gap:4px;font-weight:600;}
+.ohub-score.s-high{color:var(--green);}
+.ohub-score.s-mid{color:var(--orange);}
+.ohub-score.s-low{color:var(--red);}
+/* Notes in hub */
+.ohub-notes-wrap{margin-top:10px;padding-top:10px;border-top:1px solid var(--sep-l);}
+.ohub-notes-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--lbl-3);margin-bottom:5px;}
+/* Social media context */
+.ohub-social-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.ohub-social-pill{padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);text-decoration:none;transition:all .15s;}
+.ohub-social-pill:hover{background:var(--bg-3);color:var(--lbl-1);}
+/* Price suggestion */
+.ohub-price-hint{font-size:10px;color:var(--green);margin-top:3px;}
+/* Quick guide modal */
+.qg-section{margin-bottom:18px;}
+.qg-title{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;}
+.qg-item{font-size:12px;color:var(--lbl-2);line-height:1.6;padding:3px 0;}
+.qg-item::before{content:"• ";color:var(--blue);}
+/* Revenue tracker */
+.rev-box{background:rgba(48,209,88,.08);border:1px solid rgba(48,209,88,.2);border-radius:var(--r-md);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.rev-label{font-size:12px;color:var(--lbl-3);}
+.rev-value{font-size:22px;font-weight:700;color:var(--green);}
+.rev-sub{font-size:11px;color:var(--lbl-3);}
+
+</style>
 </head>
 <body>
 
@@ -343,13 +475,13 @@
   <div class="hdr-brand">
     <div class="hdr-icon">📍</div>
     <div>
-      <div class="hdr-title">BizFinder Pro</div>
+      <div class="hdr-title">WebGap</div>
       <div class="hdr-sub">Local Lead Discovery</div>
     </div>
   </div>
   <div class="hdr-right">
     <button class="hdr-btn" onclick="openDNCModal()">🚫 DNC</button>
-    <button class="hdr-btn" onclick="openTemplate()">✉ Template</button>
+    <button class="hdr-btn" onclick="openQuickGuide()">&#128216; Guide</button>
     <div class="hdr-badge" id="apiStatus">Checking…</div>
   </div>
 </header>
@@ -367,7 +499,7 @@
   <!-- ── Search panel ── -->
   <div class="panel">
     <div class="panel-title">Find Unrepresented Businesses</div>
-    <div class="panel-sub">Highly-rated local businesses with no website — filtered to those with a contactable email</div>
+    <div class="panel-sub">Highly-rated local businesses with no website, filtered to those with a contactable email</div>
 
     <div class="row-inputs">
       <div class="inp-group">
@@ -381,6 +513,10 @@
     </div>
 
     <div class="sec-lbl">Business Categories</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <button onclick="selectAllChips()" style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);cursor:pointer;">Select All</button>
+      <button onclick="deselectAllChips()" style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--sep-l);background:var(--bg-2);color:var(--lbl-2);cursor:pointer;">Deselect All</button>
+    </div>
     <div class="chips" id="chipRow">
       {% for cat in categories %}
       <div class="chip active"
@@ -430,7 +566,7 @@
       </div>
     </div>
 
-    <div class="cost-row" id="costRow">Est. Google API cost: <span id="costEst">—</span></div>
+    <div class="cost-row" id="costRow">Est. Google API cost: <span id="costEst">-</span></div>
 
     <!-- ── Feature 10: Multi-city queue ── -->
     <div class="queue-section" id="queueSection">
@@ -453,6 +589,17 @@
   <div class="dash-panel" id="dashPanel">
     <div class="dash-hdr">
       <div class="dash-title">Pipeline Dashboard</div>
+        <div class="rev-box" id="revBox" style="display:none">
+          <div>
+            <div class="rev-label">Total Revenue Logged</div>
+            <div class="rev-value" id="revTotal">$0</div>
+          </div>
+          <div style="text-align:right">
+            <div class="rev-label">Deals Closed</div>
+            <div id="revCount" style="font-size:18px;font-weight:700;color:var(--green)">0</div>
+            <div class="rev-sub" id="revAvg"></div>
+          </div>
+        </div>
       <button class="dash-refresh" onclick="loadDashboard()" title="Refresh">↺ Refresh</button>
     </div>
     <!-- Funnel -->
@@ -516,6 +663,11 @@
         <option value="replied">Replied</option>
         <option value="active">Active Recency</option>
         <option value="price_high">$$$ &amp; Above</option>
+        <option value="snoozed">Snoozed</option>
+        <option disabled>── Distance ──</option>
+        <option value="dist_5">≤ 5 miles</option>
+        <option value="dist_10">≤ 10 miles</option>
+        <option value="dist_25">≤ 25 miles</option>
       </select>
     </div>
     <div class="toolbar-group">
@@ -537,7 +689,7 @@
   <div class="empty" id="emptyState">
     <div class="empty-ico">🔍</div>
     <div class="empty-title">No results found</div>
-    <div class="empty-txt" id="emptyTxt">Try broadening your search — lower the minimum rating, add more categories, or turn off the email filter.</div>
+    <div class="empty-txt" id="emptyTxt">Try broadening your search. Lower the minimum rating, add more categories, or turn off the email filter.</div>
   </div>
 
   <!-- ── List / Map views ── -->
@@ -546,17 +698,444 @@
 
 </div>
 
+<!-- ── Outreach Hub modal ── -->
+<div class="modal-overlay" id="ohubModal" onclick="if(event.target===this)closeOhub()">
+  <div class="modal ohub" style="max-width:700px;padding:0;overflow:hidden;border-radius:16px">
+    <div class="ohub-head">
+      <div>
+        <div id="ohubBizName" style="font-size:18px;font-weight:700;color:#f5f5f7"></div>
+        <div id="ohubBizMeta" style="font-size:12px;color:#8e8e93;margin-top:3px"></div>
+        <div id="ohubContactAge" style="font-size:11px;color:var(--orange);margin-top:4px;display:none"></div>
+      </div>
+      <button class="modal-close" onclick="closeOhub()" style="position:relative;top:0;right:0;margin-left:auto">&#x2715;</button>
+    </div>
+    <div class="ohub-tabs">
+      <button class="ohub-tab active" data-tab="cold" onclick="switchOhubTab('cold')">Cold Email</button>
+      <button class="ohub-tab" data-tab="followup" onclick="switchOhubTab('followup')">Follow-Up</button>
+      <button class="ohub-tab" data-tab="prompt" onclick="switchOhubTab('prompt')">Website Prompt</button>
+      <button class="ohub-tab" data-tab="reply" onclick="switchOhubTab('reply')">Reply Scripts</button>
+      <button class="ohub-tab" data-tab="call" onclick="switchOhubTab('call')">Call Script</button>
+      <button class="ohub-tab" data-tab="delivery" onclick="switchOhubTab('delivery')">Delivery</button>
+      <button class="ohub-tab" data-tab="dm" onclick="switchOhubTab('dm')">&#128247; DM Script</button>
+    </div>
+    <div class="ohub-body">
+
+      <!-- Cold Email Panel -->
+      <div class="ohub-panel active" data-tab="cold">
+        <div class="field-lbl" style="margin-bottom:8px">Choose a Template</div>
+        <div class="ohub-tpl-row">
+          <div class="ohub-tpl-card active" data-tpl="gift" onclick="pickTemplate(this)">
+            <div class="ohub-tpl-name">The Gift</div>
+            <div class="ohub-tpl-tag">Reciprocity</div>
+          </div>
+          <div class="ohub-tpl-card" data-tpl="gap" onclick="pickTemplate(this)">
+            <div class="ohub-tpl-name">The Gap</div>
+            <div class="ohub-tpl-tag">Loss Aversion</div>
+          </div>
+          <div class="ohub-tpl-card" data-tpl="reviews" onclick="pickTemplate(this)">
+            <div class="ohub-tpl-name">The Reviews</div>
+            <div class="ohub-tpl-tag">Social Proof</div>
+          </div>
+          <div class="ohub-tpl-card" data-tpl="competitor" onclick="pickTemplate(this)">
+            <div class="ohub-tpl-name">The Shift</div>
+            <div class="ohub-tpl-tag">Urgency</div>
+          </div>
+          <div class="ohub-tpl-card" data-tpl="direct" onclick="pickTemplate(this)">
+            <div class="ohub-tpl-name">The Direct</div>
+            <div class="ohub-tpl-tag">Pattern Interrupt</div>
+          </div>
+        </div>
+        <div class="ohub-obs-wrap">
+          <div class="ohub-obs-lbl">Your Personalized Opener (Genuine Observation)</div>
+          <textarea class="ohub-ta" id="ohubObs" style="min-height:70px;font-size:12px" oninput="renderColdEmailBody()"></textarea>
+          <div class="ohub-obs-hint">The doc says this is THE line that separates your email from every cold pitch. Make it specific: a review quote, longevity, a recurring theme. Generic = deleted.</div>
+        </div>
+        <div class="field-lbl" style="margin-top:14px;margin-bottom:6px">Subject Line</div>
+        <div id="ohubSubjChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+        <input class="inp ohub-inp" id="ohubSubjectInp" placeholder="Subject line"/>
+        <div class="field-lbl" style="margin-top:12px;margin-bottom:6px">Email Body</div>
+        <textarea class="ohub-ta" id="ohubColdBody" oninput="updateEmailMeta()"></textarea>
+        <div class="ohub-email-meta" style="margin-top:6px">
+          <span id="ohubWordCount" style="color:var(--lbl-3)">0 words</span>
+          <span id="ohubPersonScore" class="ohub-score s-low">&#9679; Score: 0/5</span>
+          <span id="ohubDraftSaved" style="color:var(--lbl-3);opacity:0;transition:opacity .5s">Draft saved</span>
+        </div>
+        <div class="ohub-actions">
+          <button class="ohub-btn" onclick="ohubCopy('ohubColdBody',this)">Copy</button>
+          <button class="ohub-btn ohub-btn-out" onclick="ohubOutlook('ohubSubjectInp','ohubColdBody')">&#128231; Outlook</button>
+          <button class="ohub-btn ohub-btn-gm" onclick="ohubGmail('ohubSubjectInp','ohubColdBody')">&#128233; Gmail</button>
+          <button class="ohub-btn" onclick="ohubMailto('ohubSubjectInp','ohubColdBody')">Mail App</button>
+        </div>
+        <div class="ohub-settings">
+          <div class="ohub-notes-wrap">
+            <div class="ohub-notes-lbl">Business Notes</div>
+            <textarea class="ohub-ta" id="ohubHubNotes" style="min-height:52px;font-size:12px" placeholder="Quick notes about this lead..." oninput="saveHubNotes()"></textarea>
+          </div>
+          <div class="field-lbl" style="margin-bottom:8px;margin-top:12px">Your Details (auto-fills all emails)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input class="inp ohub-inp" id="ohubName" placeholder="Your Name" oninput="saveOhubSettings()" style="flex:1;min-width:130px"/>
+            <input class="inp ohub-inp" id="ohubPhone" placeholder="Your Phone" oninput="saveOhubSettings()" style="flex:1;min-width:130px"/>
+            <div style="display:flex;flex-direction:column;flex:0 0 100px">
+              <input class="inp ohub-inp" id="ohubFee" placeholder="Price e.g. 497" oninput="saveOhubSettings()" style="margin-bottom:0"/>
+              <div id="ohubPriceSuggest" class="ohub-price-hint"></div>
+            </div>
+          </div>
+          </div>
+          <div class="ohub-preview-wrap" style="margin-top:10px">
+            <div class="ohub-preview-lbl">Preview URL:</div>
+            <input class="inp ohub-inp" id="ohubPreviewUrl" placeholder="Paste your landingsite.ai preview link here" oninput="savePreviewUrl()" style="flex:1;margin-bottom:0"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow-Up Panel -->
+      <div class="ohub-panel" data-tab="followup">
+        <div class="field-lbl" style="margin-bottom:6px">Subject Line</div>
+        <input class="inp ohub-inp" id="ohubFollowSubj" style="margin-bottom:12px"/>
+        <div class="field-lbl" style="margin-bottom:6px">Email Body</div>
+        <textarea class="ohub-ta" id="ohubFollowBody"></textarea>
+        <div class="ohub-actions">
+          <button class="ohub-btn" onclick="ohubCopy('ohubFollowBody',this)">Copy</button>
+          <button class="ohub-btn ohub-btn-out" onclick="ohubOutlook('ohubFollowSubj','ohubFollowBody')">&#128231; Outlook</button>
+          <button class="ohub-btn ohub-btn-gm" onclick="ohubGmail('ohubFollowSubj','ohubFollowBody')">&#128233; Gmail</button>
+          <button class="ohub-btn" onclick="ohubMailto('ohubFollowSubj','ohubFollowBody')">Mail App</button>
+        </div>
+      </div>
+
+      <!-- Website Prompt Panel -->
+      <div class="ohub-panel" data-tab="prompt">
+        <!-- Pre-flight checklist -->
+        <div class="ohub-checklist">
+          <div class="ohub-checklist-title" onclick="toggleChecklist(this)">
+            <span>Pre-Flight Checklist</span>
+            <span style="font-size:10px;color:var(--lbl-3)">click to expand</span>
+          </div>
+          <div class="ohub-checklist-body" id="preflightBody">
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> Business name, type, and city are correct</div>
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> Primary CTA action is chosen below</div>
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> Target audience line is written</div>
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> At least 5 review screenshots are ready to upload</div>
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> I have skimmed the reviews and can spot key themes</div>
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> After pasting: verify CTA appears at least 3 times</div>
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> After pasting: check 2-3 direct review phrases appear in copy</div>
+            <div class="ohub-check-item"><input type="checkbox" onchange="checkItem(this)"> After pasting: check mobile preview before sending to client</div>
+          </div>
+        </div>
+        <div class="field-lbl" style="margin-bottom:6px">Primary CTA Button</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+          <button class="ohub-chip grn active" data-cta="BOOK NOW" onclick="pickCTA(this)">BOOK NOW</button>
+          <button class="ohub-chip grn" data-cta="CALL US" onclick="pickCTA(this)">CALL US</button>
+          <button class="ohub-chip grn" data-cta="GET A QUOTE" onclick="pickCTA(this)">GET A QUOTE</button>
+          <button class="ohub-chip grn" data-cta="ORDER NOW" onclick="pickCTA(this)">ORDER NOW</button>
+          <button class="ohub-chip grn" data-cta="RESERVE YOUR SPOT" onclick="pickCTA(this)">RESERVE YOUR SPOT</button>
+        </div>
+        <div class="field-lbl" style="margin-bottom:6px">Target Audience</div>
+        <input class="inp ohub-inp" id="ohubAudience" placeholder="e.g. working professionals aged 25-55..." oninput="rebuildPrompt()" style="margin-bottom:10px"/>
+        <div class="ohub-opt-row">
+          <div style="flex:1;min-width:160px">
+            <div class="ohub-opt-label">Vibe / Atmosphere (optional)</div>
+            <input class="inp ohub-inp" id="ohubVibe" placeholder="e.g. like a spa but for nails" oninput="rebuildPrompt()" style="margin-bottom:0"/>
+          </div>
+          <div style="flex:1;min-width:160px">
+            <div class="ohub-opt-label">Brand Colors (optional)</div>
+            <input class="inp ohub-inp" id="ohubColors" placeholder="e.g. deep navy and gold" oninput="rebuildPrompt()" style="margin-bottom:0"/>
+          </div>
+        </div>
+        <div id="ohubSocialLinks" class="ohub-social-row" style="display:none"></div>
+        <div style="margin-bottom:12px">
+          <div class="ohub-opt-label">Notable Social Proof (optional)</div>
+          <input class="inp ohub-inp" id="ohubSocialProof" placeholder="e.g. 400+ 5-star reviews, 10 years in business" oninput="rebuildPrompt()" style="margin-bottom:0"/>
+        </div>
+        <div class="field-lbl" style="margin-bottom:6px">Website Generation Prompt</div>
+        <textarea class="ohub-ta" id="ohubPromptTA" style="min-height:240px"></textarea>
+        <div class="ohub-actions">
+          <button class="ohub-btn" onclick="ohubCopy('ohubPromptTA',this)">Copy Prompt</button>
+          <button class="ohub-btn ohub-btn-out" onclick="window.open('https://landingsite.ai','_blank')">Open landingsite.ai &#8599;</button>
+        </div>
+      </div>
+
+      <!-- Reply Scripts Panel -->
+      <div class="ohub-panel" data-tab="reply">
+        <div class="ohub-reply-section pos">
+          <div class="ohub-reply-label">&#9989; Positive Responses</div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Can you send me the link to the site?"</div>
+            <div class="ohub-reply-body" id="ohubR1"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR1',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"How much does it cost?"</div>
+            <div class="ohub-reply-body" id="ohubR2"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR2',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Why did you build this for me?"</div>
+            <div class="ohub-reply-body" id="ohubR3"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR3',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Can we get on a call?"</div>
+            <div class="ohub-reply-body" id="ohubR4"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR4',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Can you make changes to it?"</div>
+            <div class="ohub-reply-body" id="ohubR5"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR5',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"How do I pay? What payment do you accept?"</div>
+            <div class="ohub-reply-body" id="ohubR6"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR6',this)">Copy</button>
+          </div>
+        </div>
+        <div class="ohub-reply-section hes">
+          <div class="ohub-reply-label">&#128336; Hesitant / Needs Time</div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Let me think about it"</div>
+            <div class="ohub-reply-body" id="ohubR7"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR7',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Who are you / How did you find me?"</div>
+            <div class="ohub-reply-body" id="ohubR8"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR8',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Can you send more information?"</div>
+            <div class="ohub-reply-body" id="ohubR9"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR9',this)">Copy</button>
+          </div>
+        </div>
+        <div class="ohub-reply-section obj">
+          <div class="ohub-reply-label">&#128683; Objections</div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"We already have someone handling that"</div>
+            <div class="ohub-reply-body" id="ohubR10"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR10',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"Not interested"</div>
+            <div class="ohub-reply-body" id="ohubR11"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR11',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"We don't have the budget right now"</div>
+            <div class="ohub-reply-body" id="ohubR12"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR12',this)">Copy</button>
+          </div>
+          <div class="ohub-reply-item">
+            <div class="ohub-reply-title">"We handle our own marketing"</div>
+            <div class="ohub-reply-body" id="ohubR13"></div>
+            <button class="ohub-btn" style="margin-top:6px" onclick="ohubCopyEl('ohubR13',this)">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call Script Panel -->
+      <div class="ohub-panel" data-tab="call">
+        <div class="ohub-call-section">
+          <div class="ohub-call-title">Outbound Call Script</div>
+          <div class="ohub-call-body" id="ohubCallBody"></div>
+          <button class="ohub-btn" style="margin-top:10px" onclick="ohubCopyEl('ohubCallBody',this)">Copy Script</button>
+        </div>
+        <div class="ohub-tip" style="margin-top:12px">Use this if cold email gets no response after 5-7 days, or if the business has no email. Keep it under 45 seconds. If they say "send me an email" — you've won.</div>
+      </div>
+
+      <!-- Delivery Panel -->
+      <div class="ohub-panel" data-tab="delivery">
+
+        <!-- Website Quality Check -->
+        <div class="ohub-delivery-section">
+          <div class="ohub-delivery-title">&#10003; Website Quality Check (before sending to client)</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Hero headline speaks to a feeling, not just the service name</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Primary CTA appears at least 3 times on the page</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> At least 2-3 direct phrases from real reviews appear in the copy</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Mobile preview looks premium (not just functional)</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> No placeholder text, generic stock-photo feel, or AI-sounding lines</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Contact info is accurate: hours, phone number, address</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> SEO title and meta description are written (not generic)</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Exclusivity/demand language present ("Join X happy customers", etc.)</div>
+        </div>
+
+        <!-- Client Delivery Steps -->
+        <div class="ohub-delivery-section">
+          <div class="ohub-delivery-title">&#128230; Client Delivery Steps</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Payment collected in full</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Domain purchased or confirmed with client</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Site transferred to client's hosting / domain connected</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> All contact info verified with client before going live</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Google Business Profile updated with new website link</div>
+          <div class="ohub-delivery-item"><input type="checkbox" onchange="this.closest('.ohub-delivery-item').classList.toggle('done',this.checked)"> Client happy — review or testimonial requested</div>
+        </div>
+
+        <!-- Upsell Opportunities -->
+        <div class="ohub-delivery-section">
+          <div class="ohub-delivery-title">&#128181; Upsell Opportunities</div>
+          <div class="ohub-tip" style="margin-bottom:10px;margin-top:0">The website is the door opener. Introduce these naturally once they love the site, not during the initial sale.</div>
+          <div class="ohub-upsell-item"><input type="checkbox" class="ohub-upsell-check"> Google Business Profile optimization &amp; setup</div>
+          <div class="ohub-upsell-item"><input type="checkbox" class="ohub-upsell-check"> Monthly website maintenance &amp; updates package</div>
+          <div class="ohub-upsell-item"><input type="checkbox" class="ohub-upsell-check"> Social media profile setup (Instagram, Facebook, etc.)</div>
+          <div class="ohub-upsell-item"><input type="checkbox" class="ohub-upsell-check"> Review generation system (get more 5-star reviews)</div>
+          <div class="ohub-upsell-item"><input type="checkbox" class="ohub-upsell-check"> Local SEO / Google Ads setup</div>
+          <div class="ohub-upsell-item"><input type="checkbox" class="ohub-upsell-check"> Logo &amp; brand kit design</div>
+        </div>
+
+        <!-- Log Revenue -->
+        <div class="ohub-delivery-section">
+          <div class="ohub-delivery-title">&#128200; Log This Deal</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="inp ohub-inp" id="ohubRevAmount" placeholder="Deal amount e.g. 497" style="flex:0 0 150px;margin-bottom:0" type="number" min="0"/>
+            <button class="ohub-btn primary" onclick="logRevenue()">&#128200; Log Closed Deal</button>
+            <span id="ohubRevMsg" style="font-size:11px;color:var(--green)"></span>
+          </div>
+        </div>
+
+      </div><!-- /.delivery panel -->
+
+      <!-- DM Script Panel -->
+      <div class="ohub-panel" data-tab="dm">
+
+        <!-- Tip banner -->
+        <div class="ohub-tip" style="margin-bottom:14px">
+          <strong>Instagram DM tips:</strong> Keep the opener under 200 characters. Don&#39;t include links in the first message &#8212; Instagram may suppress them. Lead with curiosity, not a pitch. If they respond, you&#39;ve already won.
+        </div>
+
+        <!-- Initial DM -->
+        <div class="ohub-delivery-section">
+          <div class="ohub-delivery-title">&#128247; Initial DM</div>
+          <div class="ohub-tip" style="margin-top:0;margin-bottom:8px">Send this first. Short, human, no link.</div>
+          <div id="ohubDMInitial" class="ohub-call-body" style="white-space:pre-wrap;margin-bottom:8px"></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="ohub-btn" onclick="ohubCopyEl('ohubDMInitial',this)">Copy</button>
+            <a id="ohubDMInstagramLink" href="#" target="_blank" class="ohub-btn" style="text-decoration:none">&#128247; Open Instagram</a>
+            <span id="ohubDMCharCount" style="font-size:11px;color:var(--lbl-3);margin-left:4px"></span>
+          </div>
+        </div>
+
+        <!-- Follow-up DM -->
+        <div class="ohub-delivery-section">
+          <div class="ohub-delivery-title">&#8635; Follow-Up DM <span style="font-weight:400;font-size:11px;color:var(--lbl-3)">(send after 3&#8211;5 days of no reply)</span></div>
+          <div id="ohubDMFollowup" class="ohub-call-body" style="white-space:pre-wrap;margin-bottom:8px"></div>
+          <button class="ohub-btn" onclick="ohubCopyEl('ohubDMFollowup',this)">Copy</button>
+        </div>
+
+        <!-- Reply Scripts -->
+        <div class="ohub-delivery-section">
+          <div class="ohub-delivery-title">&#128172; Reply Scripts</div>
+
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;font-weight:600;color:var(--lbl-2);margin-bottom:4px">They ask: &#34;How much?&#34;</div>
+            <div id="ohubDMPrice" class="ohub-call-body" style="white-space:pre-wrap;margin-bottom:6px"></div>
+            <button class="ohub-btn" onclick="ohubCopyEl('ohubDMPrice',this)">Copy</button>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;font-weight:600;color:var(--lbl-2);margin-bottom:4px">They say: &#34;Send me more info&#34;</div>
+            <div id="ohubDMMoreInfo" class="ohub-call-body" style="white-space:pre-wrap;margin-bottom:6px"></div>
+            <button class="ohub-btn" onclick="ohubCopyEl('ohubDMMoreInfo',this)">Copy</button>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;font-weight:600;color:var(--lbl-2);margin-bottom:4px">They say: &#34;Not interested&#34; / no reply after 2 follow-ups</div>
+            <div id="ohubDMNotInt" class="ohub-call-body" style="white-space:pre-wrap;margin-bottom:6px"></div>
+            <button class="ohub-btn" onclick="ohubCopyEl('ohubDMNotInt',this)">Copy</button>
+          </div>
+
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--lbl-2);margin-bottom:4px">They say: &#34;We already have someone&#34;</div>
+            <div id="ohubDMHaveSomeone" class="ohub-call-body" style="white-space:pre-wrap;margin-bottom:6px"></div>
+            <button class="ohub-btn" onclick="ohubCopyEl('ohubDMHaveSomeone',this)">Copy</button>
+          </div>
+
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--lbl-2);margin-bottom:4px">They say: &#34;That&#39;s too expensive&#34;</div>
+            <div id="ohubDMTooExp" class="ohub-call-body" style="white-space:pre-wrap;margin-bottom:6px"></div>
+            <button class="ohub-btn" onclick="ohubCopyEl('ohubDMTooExp',this)">Copy</button>
+          </div>
+        </div>
+
+      </div><!-- /.dm panel -->
+
+    </div><!-- /.ohub-body -->
+
+    <!-- Quick-action footer (always visible) -->
+    <div class="ohub-footer">
+      <span class="ohub-footer-lbl">Quick:</span>
+      <button class="ohub-btn" onclick="ohubMarkEmailed()">&#10003; Mark Emailed</button>
+      <button class="ohub-btn" onclick="ohubOpenReviews()">&#9733; Open Reviews</button>
+      <button class="ohub-btn" onclick="ohubDNCFromHub()" style="color:var(--red);border-color:rgba(255,69,58,.3)">&#128683; DNC</button>
+      <div id="ohubStatusBadge" style="margin-left:auto;font-size:11px;color:var(--lbl-3)"></div>
+    </div>
+  </div><!-- /.modal.ohub -->
+</div><!-- /#ohubModal -->
+
+<!-- ── Quick Guide modal ── -->
+<div class="modal-overlay" id="quickGuideModal" onclick="if(event.target===this)closeQuickGuide()">
+  <div class="modal" style="max-width:580px">
+    <button class="modal-close" onclick="closeQuickGuide()">&#x2715;</button>
+    <div class="modal-title">WebGap Quick Reference Guide</div>
+
+    <div class="qg-section">
+      <div class="qg-title">The Personalized Opener Rule</div>
+      <div class="qg-item">NEVER use a generic opener like "I came across your business and was impressed."</div>
+      <div class="qg-item">Your opener MUST reference something specific: years in business, a phrase from a review, a recurring theme customers mention.</div>
+      <div class="qg-item">Specific = believable. Generic = deleted.</div>
+    </div>
+
+    <div class="qg-section">
+      <div class="qg-title">Subject Line Strategy</div>
+      <div class="qg-item"><strong>BEST:</strong> "I made something for [Name]" — specific, unexpected, creates curiosity without revealing the pitch.</div>
+      <div class="qg-item"><strong>BOLD:</strong> "You don't have a website, so I built one for you" — highest open rate, use only for businesses with zero online presence.</div>
+      <div class="qg-item"><strong>WARM/SAFE:</strong> Use when approaching businesses that may be more formal or if BEST feels too bold.</div>
+    </div>
+
+    <div class="qg-section">
+      <div class="qg-title">Website Prompt Pro Tips</div>
+      <div class="qg-item">Upload minimum 5 review screenshots to landingsite.ai — the more emotional and specific, the better.</div>
+      <div class="qg-item">Add the vibe field if reviews suggest an atmosphere: "like a spa but for nails", "feels like a members club".</div>
+      <div class="qg-item">Add brand colors if visible on their social media — prevents generic blues and greys.</div>
+      <div class="qg-item">After generation: check CTA appears 3x, 2-3 review phrases in copy, mobile looks premium.</div>
+    </div>
+
+    <div class="qg-section">
+      <div class="qg-title">What Makes a Site Actually Convert</div>
+      <div class="qg-item">Hero headline speaks to a FEELING, not just the service. "Walk In. Walk Out Confident." beats "Best Barbershop in Dallas."</div>
+      <div class="qg-item">Real review quotes in the copy — visitors trust peers, not pitches.</div>
+      <div class="qg-item">A single, clear primary CTA that appears multiple times. Not three different actions — one.</div>
+      <div class="qg-item">Mobile-first: most business owners will view on their phone the moment you send the link.</div>
+    </div>
+
+    <div class="qg-section">
+      <div class="qg-title">Follow-Up Rules</div>
+      <div class="qg-item">Send one follow-up only — after 4-5 days of no reply.</div>
+      <div class="qg-item">After the follow-up, move on. Chasing kills the warm tone you built.</div>
+      <div class="qg-item">If they say "not right now" — snooze 30 days and revisit. Circumstances change.</div>
+    </div>
+
+    <div class="qg-section">
+      <div class="qg-title">Upsell Sequence (after close)</div>
+      <div class="qg-item">Don't upsell during the initial sale. The website is the door opener.</div>
+      <div class="qg-item">Once the site is live and they love it: Google Business Profile setup, social media links, monthly maintenance, review generation system.</div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-primary" onclick="closeQuickGuide()">Got it</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Email template modal ── -->
 <div class="modal-overlay" id="tplModal" onclick="if(event.target===this)closeTpl()">
   <div class="modal">
     <button class="modal-close" onclick="closeTpl()">×</button>
     <div class="modal-title">Email Template</div>
-    <div class="modal-sub">Used when you click "Send Email" on a card. Use <code style="font-size:11px">{{business_name}}</code> and <code style="font-size:11px">{{city}}</code> as placeholders.</div>
+    <div class="modal-sub">Used when you click "Send Email" on a card. Available variables: <code style="font-size:11px">{{business_name}}</code> <code style="font-size:11px">{{city}}</code> <code style="font-size:11px">{{state}}</code> <code style="font-size:11px">{{category}}</code> <code style="font-size:11px">{{rating}}</code> <code style="font-size:11px">{{review_count}}</code> <code style="font-size:11px">{{price_level}}</code> <code style="font-size:11px">{{owner_responds}}</code></div>
     <div class="field-lbl">Subject Line</div>
     <input class="inp" id="tplSubject" style="margin-bottom:14px" placeholder="Quick question about your online presence"/>
     <div class="field-lbl">Message Body</div>
     <textarea class="tpl-ta" id="tplBody"></textarea>
-    <div class="tpl-hint">Tip: Keep it short and personal. Mention their business name and that you found them on Google with great reviews.</div>
+    <div class="tpl-hint">Tip: Keep it short and personal. Example: "I noticed {{business_name}} has {{review_count}} great Google reviews but no website. I'd love to help."</div>
     <div class="modal-btns">
       <button class="modal-btn modal-btn-primary" onclick="saveTpl()">Save Template</button>
       <button class="modal-btn modal-btn-sec"     onclick="closeTpl()">Cancel</button>
@@ -585,7 +1164,7 @@ window.GOOGLE_CONFIGURED = {{ 'true' if google_configured else 'false' }};
 const DEFAULT_SUBJECT = "Quick question about your online presence";
 const DEFAULT_BODY = `Hi {{business_name}} team,
 
-I came across your business on Google and was really impressed — your reviews speak for themselves. I noticed you don't currently have a website, and I'd love to help change that.
+I came across your business on Google and was really impressed. Your reviews speak for themselves. I noticed you don't currently have a website, and I'd love to help change that.
 
 I build clean, professional websites for local businesses in {{city}}. Most are live within 2 weeks, and clients typically start seeing new customers find them online within the first month.
 
@@ -610,14 +1189,14 @@ let p1Total       = 0;
 let p2Total       = 0;
 let p2Done        = 0;
 
-// Feature 10 — queue state
+// Feature 10: queue state
 let queue    = [];   // [{city, state, done, running}]
 let queueIdx = -1;   // -1 = not running
 
 // Saturation data collected during live search
 let satData  = {};   // {label: {total, no_website, pct}}
 
-// Feature 7 — note debounce timers
+// Feature 7: note debounce timers
 const noteTimers = {};
 
 // ── LocalStorage (template only) ─────────────────────────
@@ -669,6 +1248,8 @@ const PRICE_MAP = {4:"$$$$", 3:"$$$", 2:"$$", 1:"$"};
 // ── Feature 6: Overdue helpers ────────────────────────────
 function isOverdue(biz) {
   if (!biz.status_date || !["emailed","followup","replied"].includes(biz.status)) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  if (biz.snooze_until && biz.snooze_until >= today) return false;
   const days = Math.floor((Date.now() - new Date(biz.status_date).getTime()) / 86400000);
   return days >= 3;
 }
@@ -696,6 +1277,1175 @@ function updateStatusMeta(pid) {
   // Update card's data-overdue
   const card = document.getElementById(`card-${pid}`);
   if (card) card.dataset.overdue = overdue ? "1" : "0";
+}
+
+// ── Snooze ────────────────────────────────────────────────
+function toggleSnoozePicker(pid, btn) {
+  // Close any other open pickers
+  document.querySelectorAll(".snooze-picker").forEach(p => p.remove());
+  const existing = document.getElementById(`snooze-picker-${pid}`);
+  if (existing) return; // was already open, now closed
+  const picker = document.createElement("div");
+  picker.className = "snooze-picker";
+  picker.id = `snooze-picker-${pid}`;
+  const biz = results[pid];
+  const isSnoozed = biz && biz.snooze_until && biz.snooze_until >= new Date().toISOString().slice(0,10);
+  picker.innerHTML = `
+    <div class="snooze-opt" onclick="applySnooze('${pid}',3)">3 days</div>
+    <div class="snooze-opt" onclick="applySnooze('${pid}',7)">1 week</div>
+    <div class="snooze-opt" onclick="applySnooze('${pid}',14)">2 weeks</div>
+    <div class="snooze-opt" onclick="applySnooze('${pid}',30)">1 month</div>
+    ${isSnoozed?`<div class="snooze-opt snooze-clear" onclick="applySnooze('${pid}',0)">Clear snooze</div>`:""}
+  `;
+  btn.closest(".card-actions").appendChild(picker);
+  setTimeout(() => {
+    function dismiss(e) {
+      if (!picker.contains(e.target) && e.target !== btn) {
+        picker.remove();
+        document.removeEventListener("click", dismiss);
+      }
+    }
+    document.addEventListener("click", dismiss);
+  }, 0);
+}
+
+async function applySnooze(pid, days) {
+  document.querySelectorAll(".snooze-picker").forEach(p => p.remove());
+  let snoozeUntil = null;
+  if (days > 0) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    snoozeUntil = d.toISOString().slice(0, 10);
+  }
+  await fetch(`/api/leads/${encodeURIComponent(pid)}`, {
+    method: "PATCH",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({snooze_until: snoozeUntil}),
+  });
+  const biz = results[pid];
+  if (biz) biz.snooze_until = snoozeUntil;
+  _refreshSnoozeBadge(pid, snoozeUntil);
+  updateStatusMeta(pid);
+}
+
+function _refreshSnoozeBadge(pid, snoozeUntil) {
+  const today  = new Date().toISOString().slice(0, 10);
+  const active = snoozeUntil && snoozeUntil >= today;
+  const badge  = document.getElementById(`snooze-badge-${pid}`);
+  if (badge) {
+    badge.textContent = active ? `⏰ Snoozed until ${snoozeUntil}` : "";
+    badge.style.display = active ? "" : "none";
+  }
+  const btn = document.getElementById(`snooze-btn-${pid}`);
+  if (btn) btn.textContent = active ? "⏰ Snoozed" : "⏰ Snooze";
+  const card = document.getElementById(`card-${pid}`);
+  if (card) card.dataset.snooze = snoozeUntil || "";
+}
+
+// ── Distance filter ───────────────────────────────────────
+let cityLat = null;
+let cityLng = null;
+
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 3958.8;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+async function fetchCityCenter() {
+  if (cityLat !== null) return true;
+  const city  = document.getElementById("cityInp").value.trim();
+  const state = document.getElementById("stateInp").value.trim();
+  if (!city || !state) return false;
+  try {
+    const r = await fetch(`/api/geocode?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
+    if (!r.ok) return false;
+    const d = await r.json();
+    if (d.lat != null) { cityLat = d.lat; cityLng = d.lng; return true; }
+  } catch {}
+  return false;
+}
+
+
+// ── Select / Deselect All chips ──────────────────────────────────────────────
+function selectAllChips() {
+  document.addEventListener('DOMContentLoaded', () => { _refreshRevBox(); });
+
+document.querySelectorAll(".chip").forEach(c => {
+    c.classList.add("active");
+    c.style.opacity = "";
+  });
+  updateCostEst();
+}
+function deselectAllChips() {
+  document.querySelectorAll(".chip").forEach(c => {
+    c.classList.remove("active");
+    c.style.opacity = "0.45";
+  });
+  updateCostEst();
+}
+
+// ── Outreach Hub ──────────────────────────────────────────────────────────────
+const LS_ONAME  = "wgap_oname";
+const LS_OPHONE = "wgap_ophone";
+const LS_OFEE   = "wgap_ofee";
+
+let _ohub = null;        // current business
+let _currentTpl = "gift"; // active email template
+
+const _CAT_TYPE = {
+  "Restaurants":"restaurant","Bars & Pubs":"bar or pub","Night Clubs":"night club",
+  "Barber Shops":"barbershop","Beauty Salons":"beauty salon","Hair Salons":"hair salon",
+  "Spas":"day spa","Nail Salons":"nail salon","Massage":"massage therapy studio",
+  "Tattoo Shops":"tattoo shop","Gyms & Fitness":"gym and fitness center",
+  "Florists":"florist","Pet Groomers":"pet groomer","Photographers":"photography studio",
+  "Cleaning Services":"cleaning service","Landscaping":"landscaping company",
+  "Auto Repair":"auto repair shop","Alterations":"alterations and tailoring shop",
+  "Tutoring":"tutoring center","Catering":"catering company",
+  "Event Planners":"event planning company","Daycare":"daycare and childcare center",
+  "Accountants":"accounting and bookkeeping firm","Insurance Agents":"insurance agency"
+};
+const _CAT_AUD = {
+  "Restaurants":"working professionals and families aged 25-55 who dine out regularly",
+  "Bars & Pubs":"adults aged 25-45 who enjoy a great local atmosphere",
+  "Night Clubs":"young adults aged 21-35 seeking a premium nightlife experience",
+  "Barber Shops":"men aged 18-45 who take pride in their appearance",
+  "Beauty Salons":"women aged 25-50 who value professional beauty services",
+  "Hair Salons":"women and men aged 20-50 who want expert hair care",
+  "Spas":"professionals aged 25-50 seeking relaxation and self-care",
+  "Nail Salons":"women aged 20-50 who value quality nail care and pampering",
+  "Massage":"working adults aged 25-55 dealing with stress or muscle tension",
+  "Tattoo Shops":"adults aged 18-40 looking for skilled, custom tattoo work",
+  "Gyms & Fitness":"health-conscious adults aged 18-45 committed to their fitness",
+  "Florists":"individuals and businesses looking for premium floral arrangements",
+  "Pet Groomers":"pet owners aged 25-55 who treat their pets like family",
+  "Photographers":"couples, families, and businesses seeking professional photography",
+  "Cleaning Services":"busy homeowners and businesses aged 30-60",
+  "Landscaping":"homeowners aged 30-65 who want a beautiful outdoor space",
+  "Auto Repair":"vehicle owners aged 25-55 who want reliable, trustworthy repairs",
+  "Alterations":"professionals and fashion-conscious adults aged 25-60",
+  "Tutoring":"parents of school-age children seeking academic support",
+  "Catering":"event planners and businesses looking for premium catering",
+  "Event Planners":"individuals and companies planning weddings, corporate events, or parties",
+  "Daycare":"working parents of young children aged 0-5",
+  "Accountants":"small business owners and individuals needing reliable financial guidance",
+  "Insurance Agents":"homeowners, business owners, and families seeking trusted coverage"
+};
+
+function openOutreach(pid) {
+  const b = results[pid];
+  if (!b) return;
+  _ohub = b;
+  const city  = b.city  || searchCity  || "";
+  const state = b.state || searchState || "";
+  document.getElementById("ohubBizName").textContent = b.name;
+  document.getElementById("ohubBizMeta").textContent = [
+    b.category,
+    city && state ? city + ", " + state : city || state,
+    b.google_rating ? "\u2605 " + b.google_rating.toFixed(1) + " (" + (b.google_reviews||0).toLocaleString() + " reviews)" : ""
+  ].filter(Boolean).join("  \u00b7  ");
+  document.getElementById("ohubName").value  = lsGet(LS_ONAME)  || "";
+  document.getElementById("ohubPhone").value = lsGet(LS_OPHONE) || "";
+  document.getElementById("ohubFee").value   = lsGet(LS_OFEE)   || "497";
+  // Pre-fill audience suggestion
+  const audEl = document.getElementById("ohubAudience");
+  if (!audEl.value) audEl.value = _CAT_AUD[b.category] || "";
+  // Populate editable observation field
+  const obsEl = document.getElementById("ohubObs");
+  if (obsEl) {
+    const obsKey = "wgap_obs_" + b.place_id;
+    obsEl.value = localStorage.getItem(obsKey) || _genObs(b);
+    obsEl.oninput = () => { localStorage.setItem(obsKey, obsEl.value); renderColdEmailBody(); };
+  }
+  // Preview URL
+  const prevEl = document.getElementById("ohubPreviewUrl");
+  if (prevEl) {
+    const prevKey = "wgap_prev_" + b.place_id;
+    prevEl.value = localStorage.getItem(prevKey) || "";
+  }
+  // Status badge
+  const badge = document.getElementById("ohubStatusBadge");
+  if (badge) {
+    const st = b.status || "new";
+    const stLabels = {new:"Not contacted",emailed:"Emailed",followup:"Follow-up sent",replied:"Replied",closed:"Closed",skip:"Skipped"};
+    badge.textContent = "Status: " + (stLabels[st] || st);
+  }
+  // Days since contacted
+  _showContactAge(b);
+  // Load notes
+  _loadHubNotes(b);
+  // Social links (for website prompt tab)
+  _renderSocialLinks(b);
+  // Price suggestion
+  _showPriceSuggest(b);
+  // Load draft if exists
+  // (renderColdEmail will overwrite, so load after a tick)
+  // Reset to first tab
+  switchOhubTab("cold");
+  // Try loading draft (after render)
+  setTimeout(() => { loadDraft(); updateEmailMeta(); }, 50);
+  document.getElementById("ohubModal").classList.add("on");
+  // Revenue box refresh
+  _refreshRevBox();
+}
+function closeOhub() {
+  document.getElementById("ohubModal").classList.remove("on");
+  _ohub = null;
+}
+function switchOhubTab(tab) {
+  document.querySelectorAll(".ohub-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+  document.querySelectorAll(".ohub-panel").forEach(p => p.classList.toggle("active", p.dataset.tab === tab));
+  if      (tab === "cold")    renderColdEmail();
+  else if (tab === "followup") renderFollowUp();
+  else if (tab === "prompt")  { rebuildPrompt(); }
+  else if (tab === "reply")   renderReplies();
+  else if (tab === "call")    renderCallScript();
+  else if (tab === "delivery") renderDeliveryTab();
+  else if (tab === "dm") renderDMScript();
+}
+function saveOhubSettings() {
+  lsSet(LS_ONAME,  document.getElementById("ohubName").value.trim());
+  lsSet(LS_OPHONE, document.getElementById("ohubPhone").value.trim());
+  lsSet(LS_OFEE,   document.getElementById("ohubFee").value.trim());
+  const active = document.querySelector(".ohub-tab.active");
+  if (active) switchOhubTab(active.dataset.tab);
+}
+function _oName()  { return lsGet(LS_ONAME)  || "[Your Name]"; }
+function _oPhone() { return lsGet(LS_OPHONE) || "[Your Phone]"; }
+function _oFee()   { return lsGet(LS_OFEE)   || "497"; }
+
+function _genObs(b) {
+  const city = b.city || searchCity || "your city";
+  const rev  = b.google_reviews || 0;
+  const rat  = b.google_rating  || 0;
+  if (rev >= 200) {
+    return "I came across " + b.name + " while researching local businesses in " + city + ", and I have to say, the volume of people who have taken time to leave a review says something. Over " + rev.toLocaleString() + " reviews does not happen by accident. That is a business people genuinely trust and keep coming back to.";
+  } else if (rat >= 4.8 && rev >= 50) {
+    return "I came across " + b.name + " while researching local businesses in " + city + ", and what immediately stood out was the quality of the reviews people leave. A " + rat.toFixed(1) + "-star average across " + rev.toLocaleString() + " reviews is rare. That kind of consistency tells me you are doing something most businesses never figure out.";
+  } else if (rev >= 20) {
+    return "I came across " + b.name + " while researching local businesses in " + city + ", and the reviews people leave about you are genuinely some of the best I have read. People do not write like that unless a business has made them feel something.";
+  }
+  return "I came across " + b.name + " while researching local businesses in " + city + ". The reviews people leave about you are some of the most genuine I have come across. That kind of reputation is rare, and it is exactly why I wanted to reach out.";
+}
+
+function pickTemplate(el) {
+  document.querySelectorAll(".ohub-tpl-card").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  _currentTpl = el.dataset.tpl || "gift";
+  renderColdEmail();
+}
+
+function _buildSubjChips(subjects) {
+  const row = document.getElementById("ohubSubjChips");
+  if (!row) return;
+  row.innerHTML = "";
+  subjects.forEach((s, i) => {
+    const btn = document.createElement("button");
+    btn.className = "ohub-chip" + (i === 0 ? " active" : "");
+    btn.textContent = s.label;
+    btn.dataset.idx = i;
+    btn.onclick = function() {
+      row.querySelectorAll(".ohub-chip").forEach(c => c.classList.remove("active"));
+      this.classList.add("active");
+      document.getElementById("ohubSubjectInp").value = subjects[this.dataset.idx].val;
+    };
+    row.appendChild(btn);
+  });
+  if (subjects.length > 0) document.getElementById("ohubSubjectInp").value = subjects[0].val;
+}
+
+function renderColdEmail() {
+  if (!_ohub) return;
+  const b     = _ohub;
+  const city  = b.city || searchCity || "[City]";
+  const name  = _oName();
+  const phone = _oPhone();
+  const fee   = _oFee();
+  const obs   = _genObs(b);
+  const q     = chr(39);   // intentional unused; kept for parity
+
+  const TEMPLATES = {
+    gift: {
+      subjects: [
+        {label:"BEST",  val:"I made something for " + b.name},
+        {label:"WARM",  val:"Something I put together for " + b.name},
+        {label:"SAFE",  val:"A quick note for the team at " + b.name},
+        {label:"BOLD",  val:"You don't have a website, so I built one for you"}
+      ],
+      body: () => [
+        "Hi [Owner's First Name],",
+        "",
+        obs,
+        "",
+        "I noticed you don't currently have a website, and I kept thinking about what that means for you. Every day, people in " + city + " are searching online for exactly what you offer, and right now, they can't find you.",
+        "",
+        "So I did something a little unconventional. I went ahead and built one for you.",
+        "",
+        "It's a full, professional website, designed around what your actual customers say about " + b.name + ". The things they love, the way they describe the experience, the specific reasons they keep coming back. It's all in there. It's ready to go live right now.",
+        "",
+        "Here's the offer, plainly: I'm asking $" + fee + ", one time. That's it. No subscription, no monthly fees, no ongoing obligations. Once you purchase it, the website is completely and entirely yours, forever.",
+        "",
+        "I don't want you to buy anything you haven't seen. Just reply to this email and I'll send you the link to view it right now, no strings attached. If you love it, great. If it's not for you, truly no hard feelings.",
+        "",
+        "I just know that a business as well-regarded as " + b.name + " deserves to be found.",
+        "",
+        "Warmly,",
+        name,
+        phone,
+        "",
+        "P.S. If getting a website has been one of those things you've meant to do but never had the time to figure out, this is that problem, already solved. It's done. You just have to say yes."
+      ].join("\n")
+    },
+
+    gap: {
+      subjects: [
+        {label:"BEST",  val:"Every day without a website, " + b.name + " is losing customers"},
+        {label:"WARM",  val:"There's a gap I noticed for " + b.name},
+        {label:"SAFE",  val:"Something I thought you should know about " + b.name},
+        {label:"BOLD",  val:"Your competitors are showing up online. You're not."}
+      ],
+      body: () => [
+        "Hi [Owner's First Name],",
+        "",
+        obs,
+        "",
+        "Here's something worth thinking about: right now, when someone in " + city + " searches for what you offer, your competitors show up. You don't.",
+        "",
+        "That's not a dig. It's just reality. And every day that gap exists, customers who would have loved " + b.name + " are choosing someone else by default, not because they're better, but because they're findable.",
+        "",
+        "I built a website for " + b.name + " to close that gap. It's done. It's ready. It reflects your actual reputation, your real reviews, and what makes you different.",
+        "",
+        "One-time investment: $" + fee + ". No subscriptions, no ongoing fees. Just a professional website that finally puts you on the map.",
+        "",
+        "Want to see it before you decide? Just reply and I'll send the link. No pressure, no strings.",
+        "",
+        "Warmly,",
+        name,
+        phone,
+        "",
+        "P.S. The businesses gaining ground in " + city + " right now aren't necessarily better. They're just easier to find."
+      ].join("\n")
+    },
+
+    reviews: {
+      subjects: [
+        {label:"BEST",  val:"Your reviews are incredible, " + b.name + " — I had to do something"},
+        {label:"WARM",  val:"People are saying amazing things about " + b.name},
+        {label:"SAFE",  val:"I came across your reviews and felt compelled to reach out"},
+        {label:"BOLD",  val:"You have some of the best reviews in " + city + ". Nobody can find them."}
+      ],
+      body: () => [
+        "Hi [Owner's First Name],",
+        "",
+        obs,
+        "",
+        "I spent time reading what your customers write about " + b.name + ", and honestly, it stopped me. The specificity of what people say, the emotion in it, the way they describe their experience, that's not something you can fake or manufacture.",
+        "",
+        "That kind of social proof is genuinely rare. And right now, it's essentially invisible to anyone who hasn't already found you.",
+        "",
+        "So I built you a website that puts it front and center. Real quotes from real customers. The story they tell about your business. All of it beautifully presented and ready to be the first thing a new customer sees.",
+        "",
+        "It's done. It's ready to go live. One-time fee of $" + fee + " and it's completely yours.",
+        "",
+        "Reply and I'll send the link. Take a look. No commitment required.",
+        "",
+        "Warmly,",
+        name,
+        phone,
+        "",
+        "P.S. Your reputation is already doing the work. Let's make sure people can actually find it."
+      ].join("\n")
+    },
+
+    competitor: {
+      subjects: [
+        {label:"BEST",  val:"Something shifted in " + city + " for businesses like " + b.name},
+        {label:"WARM",  val:"The competitive landscape just changed in " + city},
+        {label:"SAFE",  val:"A heads up for " + b.name},
+        {label:"BOLD",  val:"Your competitors just got a website upgrade. You haven't."}
+      ],
+      body: () => [
+        "Hi [Owner's First Name],",
+        "",
+        obs,
+        "",
+        "I want to give you a heads up about something I noticed while researching the " + (b.category || "local business") + " space in " + city + ".",
+        "",
+        "Businesses in your category are actively building or upgrading their online presence right now. More of them show up in search results, have professional sites, and are easier for new customers to find.",
+        "",
+        "I don't say that to create panic. I say it because " + b.name + " has something most of them don't: a genuine reputation and real customer trust. But right now, that advantage is hard to see from the outside.",
+        "",
+        "I built a website for you. It's ready to go, built around your reviews and your real story. One-time cost: $" + fee + ". Yours forever.",
+        "",
+        "Want to see it? Just reply. I'll send the link with no pressure and no strings.",
+        "",
+        "Warmly,",
+        name,
+        phone,
+        "",
+        "P.S. The businesses that establish their online presence first tend to hold that advantage for years. This is a good moment to act."
+      ].join("\n")
+    },
+
+    direct: {
+      subjects: [
+        {label:"BEST",  val:"Straight to it: I built a site for " + b.name},
+        {label:"WARM",  val:"No fluff — I made something for you"},
+        {label:"SAFE",  val:"Quick note for " + b.name},
+        {label:"BOLD",  val:"I built your website. Want to see it?"}
+      ],
+      body: () => [
+        "Hi [Owner's First Name],",
+        "",
+        "I'll keep this short.",
+        "",
+        "I researched " + b.name + " in " + city + ". I read your reviews. I built you a professional website based on what your customers actually say about you.",
+        "",
+        "It's done. It looks great. It's ready to go live.",
+        "",
+        "$" + fee + ", one time. You own it completely. No subscriptions, no contracts, no ongoing fees.",
+        "",
+        "Reply if you want the link. I'll send it immediately.",
+        "",
+        name,
+        phone,
+        "",
+        "P.S. No pitch. No pressure. Just a website that's already built and waiting."
+      ].join("\n")
+    }
+  };
+
+  const tpl = TEMPLATES[_currentTpl] || TEMPLATES.gift;
+  _buildSubjChips(tpl.subjects);
+  renderColdEmailBody();
+  // Auto-select BOLD subject for confirmed no-website businesses
+  if (!_ohub.website && _currentTpl === "gift") {
+    const chips = document.querySelectorAll("#ohubSubjChips .ohub-chip");
+    chips.forEach(c => c.classList.remove("active"));
+    const boldChip = [...chips].find(c => c.textContent === "BOLD");
+    if (boldChip) {
+      boldChip.classList.add("active");
+      document.getElementById("ohubSubjectInp").value =
+        "You don" + String.fromCharCode(39) + "t have a website, so I built one for you";
+    }
+  }
+}
+
+function renderColdEmailBody() {
+  if (!_ohub) return;
+  const tpl   = TEMPLATES[_currentTpl] || TEMPLATES.gift;
+  const obsEl = document.getElementById("ohubObs");
+  const obs   = obsEl ? obsEl.value.trim() || _genObs(_ohub) : _genObs(_ohub);
+  let body    = tpl.body();
+  const autoObs = _genObs(_ohub);
+  if (obs && obs !== autoObs) body = body.replace(autoObs, obs);
+  document.getElementById("ohubColdBody").value = body;
+}
+
+function renderFollowUp() {
+  if (!_ohub) return;
+  const b    = _ohub;
+  const fee  = _oFee();
+  const name = _oName();
+  const phone = _oPhone();
+  document.getElementById("ohubFollowSubj").value = "Still here for you, " + b.name;
+  document.getElementById("ohubFollowBody").value =
+"Hi [First Name],\n\n" +
+"Just wanted to circle back quickly. I sent you a note a few days ago about a website I built for " + b.name + ".\n\n" +
+"No pressure at all. I just wanted to make sure it didn" + String.fromCharCode(39) + "t get buried in a busy inbox.\n\n" +
+"The offer still stands: take a look at the site for free, and if it feels right, it" + String.fromCharCode(39) + "s yours for a one-time fee of $" + fee + " with full ownership. No strings.\n\n" +
+"If the timing isn" + String.fromCharCode(39) + "t right, that" + String.fromCharCode(39) + "s genuinely okay. I just didn" + String.fromCharCode(39) + "t want you to miss it in case it got lost.\n\n" +
+"Either way, I hope things are going well over there.\n\n" +
+"Warmly,\n" + name + "\n" + phone;
+}
+
+function pickCTA(el) {
+  document.querySelectorAll(".ohub-cta-chip, .ohub-chip.grn").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  rebuildPrompt();
+}
+function rebuildPrompt() {
+  if (!_ohub) return;
+  const b      = _ohub;
+  const city   = b.city  || searchCity  || "[City]";
+  const state  = b.state || searchState || "";
+  const cs     = state ? city + ", " + state : city;
+  const btype  = _CAT_TYPE[b.category] || (b.category || "local business").toLowerCase();
+  const ctaEl  = document.querySelector("[data-cta].active");
+  const cta    = ctaEl ? ctaEl.dataset.cta : "BOOK NOW";
+  const audEl  = document.getElementById("ohubAudience");
+  const aud    = audEl.value.trim() || _CAT_AUD[b.category] || "local residents looking for quality services";
+  const revNum = (b.google_reviews || 0).toLocaleString();
+
+  // Parse review snippets (array from live stream or JSON string from DB)
+  let snippets = [];
+  try {
+    if (Array.isArray(b.review_snippets))       snippets = b.review_snippets;
+    else if (b.review_snippets)                 snippets = JSON.parse(b.review_snippets);
+  } catch {}
+  const snippetsText = snippets.length
+    ? snippets.map((s, i) => (i + 1) + ". " + chr39() + s + chr39()).join("\n\n")
+    : "";
+
+  // Opening hours
+  const hoursText = b.opening_hours || "";
+
+  // Yelp line
+  let yelpLine = "";
+  if (b.yelp_rating && b.yelp_reviews) {
+    yelpLine = "\nYelp: " + b.yelp_rating + " stars, " + b.yelp_reviews + " reviews.";
+  }
+
+  // Price level qualifier
+  const priceLux = b.price_level >= 3 ? " upscale, premium-priced"
+                 : b.price_level === 1 ? " accessible, value-focused"
+                 : "";
+
+  const prompt =
+"Build a high-converting, luxury website for " + b.name + ", a" + priceLux + " " + btype + " based in " + cs + ".\n\n" +
+"This business has no current web presence. The site should feel like their first impression to the world, and it needs to hit hard.\n\n" +
+"TONE & AESTHETIC:\n" +
+"Make the site feel expensive, cinematic, and modern. Think dark or rich color palette: deep blacks, golds, or jewel tones depending on the brand feel. Use bold, confident typography. Every section should feel intentional and premium. No stock-photo energy. This is a brand, not a flyer.\n\n" +
+"VOICE & SELLING POINTS:\n" +
+(snippetsText
+  ? "Use the following REAL customer reviews as your PRIMARY source for all copy, headlines, and testimonials. Pull out recurring themes, emotions, and specific details. The copy should feel like it was written by someone who knows this place deeply\u2014not AI-generated.\n\nREAL CUSTOMER REVIEWS:\n" + snippetsText + "\n\n"
+  : "I" + chr39() + "ve attached real customer reviews for this business. Read them carefully. Pull out recurring themes: what customers rave about, emotions they express, specific details they mention. Use that language directly in headlines and body copy. Treat uploaded review screenshots as your PRIMARY source.\n\n") +
+"TARGET CUSTOMER: " + aud + "\n\n" +
+"SOCIAL PROOF CONTEXT:\n" +
+"Google: " + revNum + " reviews, " + (b.google_rating || "") + " stars." + yelpLine + "\n\n" +
+"PAGE STRUCTURE (include all of these sections):\n" +
+"1. Hero: bold headline capturing the essence of the experience, strong subheading, primary CTA button: " + cta + "\n" +
+"2. Why Us / What Makes Us Different: 3-4 punchy value props drawn from real reviews\n" +
+"3. Services / Menu / Offerings: clean, visual, easy to scan\n" +
+"4. Social Proof: real review quotes in sleek trust-building format\n" +
+"5. About / Story section: warm but confident, builds connection\n" +
+"6. Final CTA section: urgency-driven, push them to act now\n" +
+"7. Contact / Location / Hours / Booking\n\n" +
+"CONVERSION PRIORITIES:\n" +
+"- Primary CTA appears at least 3x throughout the page\n" +
+"- Create exclusivity and demand: \"Limited availability\", \"Join " + revNum + " happy customers\", \"Experience the difference\"\n" +
+"- Mobile must feel just as premium as desktop\n\n" +
+"SEO:\n" +
+"Write a compelling page title and meta description for local search using the business name and city.\n\n" +
+"BUSINESS DETAILS (pre-fill accurately in contact/location section):\n" +
+"Business name: " + b.name + "\n" +
+(b.address ? "Address: " + b.address + "\n" : "") +
+(b.phone   ? "Phone: "   + b.phone   + "\n" : "") +
+(hoursText ? "Hours:\n"  + hoursText + "\n" : "") +
+"\nTHE GOAL: A visitor lands with zero prior knowledge of this business and within 10 seconds feels like this is THE place they need to go. Build that.";
+
+  // Optional extras
+  const vibeEl   = document.getElementById("ohubVibe");
+  const colorEl  = document.getElementById("ohubColors");
+  const spEl     = document.getElementById("ohubSocialProof");
+  const vibe     = vibeEl  ? vibeEl.value.trim()  : "";
+  const color    = colorEl ? colorEl.value.trim() : "";
+  const sp       = spEl    ? spEl.value.trim()    : "";
+  let extras = "";
+  if (vibe)  extras += "\nVIBE: The atmosphere should feel like " + vibe + ".";
+  if (color) extras += "\nCOLOR PALETTE: " + color + ". Avoid defaulting to generic blues and greys.";
+  if (sp)    extras += "\nSOCIAL PROOF HIGHLIGHT: " + sp + " — mention this explicitly.";
+  if (extras) prompt += "\n" + extras;
+  document.getElementById("ohubPromptTA").value = prompt;
+}
+
+function renderReplies() {
+  if (!_ohub) return;
+  const b    = _ohub;
+  const name = _oName();
+  const fee  = _oFee();
+
+  // ── Positive ──────────────────────────────────────────────
+  const r1 = document.getElementById("ohubR1");
+  if (r1) r1.textContent = [
+    (function(){ const u=document.getElementById("ohubPreviewUrl"); return "Here it is: "+(u&&u.value.trim()||"[YOUR WEBSITE PREVIEW LINK]"); })(),
+    "",
+    "Take your time with it. If you have any questions or want to make any small adjustments before going live, just let me know. I'm happy to help.",
+    "",
+    "When you're ready to move forward, I'll send over the payment link and we can have this live for you same day.",
+    "",
+    "Warmly,",
+    name
+  ].join("\n");
+
+  const r2 = document.getElementById("ohubR2");
+  if (r2) r2.textContent = [
+    "Great question. Here's exactly what you're getting:",
+    "",
+    "  - A fully built, professional website (it's already done - you can see it right now)",
+    "  - Complete ownership transfer: the site is 100% yours once purchased",
+    "  - No ongoing fees, no subscriptions, no contracts",
+    "  - I'll handle everything so you're ready to go live",
+    "",
+    "It's a one-time purchase: $" + fee + ". That's it.",
+    "",
+    name
+  ].join("\n");
+
+  const r3 = document.getElementById("ohubR3");
+  if (r3) r3.textContent = [
+    "Totally fair question. I do this because I'd rather show you something real than pitch you something hypothetical.",
+    "",
+    "I've seen too many great local businesses lose customers simply because they're invisible online. " + b.name + " clearly deserves better than that.",
+    "",
+    "No pressure to do anything with it. But if it looks right to you, it's yours.",
+    "",
+    name
+  ].join("\n");
+
+  const r4 = document.getElementById("ohubR4");
+  if (r4) r4.textContent = [
+    "Absolutely. Here's my number: [YOUR PHONE NUMBER]",
+    "",
+    "I'm usually available [YOUR AVAILABILITY], or just text me and we'll find a time that works.",
+    "",
+    "Either way, I'll make sure you can see the full site before we talk so the call is worth your time.",
+    "",
+    name
+  ].join("\n");
+
+  const r5 = document.getElementById("ohubR5");
+  if (r5) r5.textContent = [
+    "Yes, absolutely. Minor tweaks like updating hours, phone number, or swapping a photo are included at no extra cost.",
+    "",
+    "For larger structural changes, I'm happy to quote you separately, but in my experience most people find the site reflects their business really well once they see it.",
+    "",
+    "What did you have in mind? Let me know and I'll tell you exactly what's possible.",
+    "",
+    name
+  ].join("\n");
+
+  const r6 = document.getElementById("ohubR6");
+  if (r6) r6.textContent = [
+    "I accept all major credit and debit cards through a secure payment link I'll send over.",
+    "",
+    "Once payment is confirmed, I'll immediately begin the transfer process and we'll have the site live for you that same day.",
+    "",
+    "Want me to send the payment link now, or did you want to see the site first?",
+    "",
+    name
+  ].join("\n");
+
+  // ── Hesitant ─────────────────────────────────────────────
+  const r7 = document.getElementById("ohubR7");
+  if (r7) r7.textContent = [
+    "Of course, no rush at all.",
+    "",
+    "Just so you have all the context: the site is fully built and ready right now, but I can't guarantee I'll still have it available indefinitely — I do work with multiple businesses in each area.",
+    "",
+    "I'll leave it with you. If you'd like to take a look before you decide, the offer to send the link is still open. No pressure either way.",
+    "",
+    name
+  ].join("\n");
+
+  const r8 = document.getElementById("ohubR8");
+  if (r8) r8.textContent = [
+    "Great question. My name is " + name + " and I specialize in building websites for local businesses that have a strong reputation but no online presence.",
+    "",
+    "I found " + b.name + " while researching businesses in the area. Your reviews genuinely stood out to me, and I felt like your business deserved to be easier to find online.",
+    "",
+    "I build the site first, then reach out. That way you're never buying something you haven't seen.",
+    "",
+    "Happy to answer any other questions. What would you like to know?",
+    "",
+    name
+  ].join("\n");
+
+  const r9 = document.getElementById("ohubR9");
+  if (r9) r9.textContent = [
+    "Happy to. Here's a quick summary:",
+    "",
+    "  - I built a complete, professional website for " + b.name + " — it's done and ready to view right now",
+    "  - It's designed around your actual customer reviews and what makes your business stand out",
+    "  - One-time fee of $" + fee + ". Full ownership. No subscriptions.",
+    "  - You can view it before committing to anything",
+    "",
+    "Would you like me to send the preview link? That's really the best way to see if it's a fit.",
+    "",
+    name
+  ].join("\n");
+
+  // ── Objections ────────────────────────────────────────────
+  const r10 = document.getElementById("ohubR10");
+  if (r10) r10.textContent = [
+    "That's completely understandable, and I respect that.",
+    "",
+    "I'd just say: the website is already built and it's yours to view right now. If your current setup is genuinely working for you, then there's no reason to change anything.",
+    "",
+    "But if there's even a small chance it's worth a look, I'm happy to send the link. No cost, no commitment, just a two-minute glance.",
+    "",
+    "Up to you completely.",
+    "",
+    name
+  ].join("\n");
+
+  const r11 = document.getElementById("ohubR11");
+  if (r11) r11.textContent = [
+    "Completely understood, and I appreciate you letting me know.",
+    "",
+    "I'll leave the offer open in case anything changes. If you ever find yourself wanting an online presence for " + b.name + " down the road, feel free to reach back out.",
+    "",
+    "I hope things continue to go well for you.",
+    "",
+    name
+  ].join("\n");
+
+  const r12 = document.getElementById("ohubR12");
+  if (r12) r12.textContent = [
+    "I hear you, and I appreciate you being straight with me.",
+    "",
+    "Here's the thing: the site is already built, so there's no design or development cost to cover. At $" + fee + " one-time, I've intentionally kept it accessible for exactly this reason.",
+    "",
+    "That said, I'm not here to create pressure. If the timing genuinely isn't right, I understand.",
+    "",
+    "Would it help to see the site first? Sometimes seeing something real makes the decision a lot clearer.",
+    "",
+    name
+  ].join("\n");
+
+  const r13 = document.getElementById("ohubR13");
+  if (r13) r13.textContent = [
+    "That's great — having someone handle marketing in-house is a real asset.",
+    "",
+    "This is a little different though. It's not an ongoing marketing service, it's a fully built website that you own outright, one time, no strings.",
+    "",
+    "Your marketing person would actually have more to work with once the site is live — a real home base to drive traffic to.",
+    "",
+    "Worth a two-minute look? I can send the link right now.",
+    "",
+    name
+  ].join("\n");
+}
+
+async function ohubCopy(id, btn) {
+  const el   = document.getElementById(id);
+  const text = (el.value !== undefined ? el.value : el.textContent).trim();
+  try {
+    await navigator.clipboard.writeText(text);
+    _ohubFlash(btn);
+  } catch { alert("Copy failed. Please select the text and copy manually."); }
+}
+async function ohubCopyEl(id, btn) {
+  const text = (document.getElementById(id).textContent || "").trim();
+  try {
+    await navigator.clipboard.writeText(text);
+    _ohubFlash(btn);
+  } catch { alert("Copy failed. Please select the text and copy manually."); }
+}
+function _ohubFlash(btn) {
+  const orig = btn.textContent;
+  const origStyle = btn.getAttribute("style") || "";
+  btn.textContent = "Copied!";
+  btn.style.cssText = origStyle + ";background:#30d158;border-color:#30d158;color:#fff";
+  setTimeout(() => { btn.textContent = orig; btn.setAttribute("style", origStyle); }, 1800);
+}
+// ── Preview URL persistence ───────────────────────────────
+function savePreviewUrl() {
+  if (!_ohub) return;
+  const el = document.getElementById("ohubPreviewUrl");
+  if (el) localStorage.setItem("wgap_prev_" + _ohub.place_id, el.value);
+}
+
+// ── Quick action footer ───────────────────────────────────
+async function ohubMarkEmailed() {
+  if (!_ohub) return;
+  await setStatusDB(_ohub.place_id, "emailed");
+  _ohub.status = "emailed";
+  const badge = document.getElementById("ohubStatusBadge");
+  if (badge) badge.textContent = "Status: Emailed";
+  // Flash confirmation
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = "Marked!";
+  btn.style.cssText += ";background:#30d158;border-color:#30d158;color:#fff";
+  setTimeout(() => { btn.textContent = orig; btn.style.cssText = ""; }, 2000);
+  // Refresh card if visible
+  const card = document.getElementById("card-" + _ohub.place_id);
+  if (card) {
+    card.className = card.className.replace(/status-\w+/, "status-emailed");
+    updateStatusMeta(_ohub.place_id);
+  }
+}
+function ohubOpenReviews() {
+  if (!_ohub) return;
+  const url = _ohub.google_maps_url || ("https://www.google.com/maps/search/" + encodeURIComponent(_ohub.name + " " + (_ohub.city || "")));
+  window.open(url, "_blank");
+}
+async function ohubDNCFromHub() {
+  if (!_ohub) return;
+  if (!confirm("Add " + _ohub.name + " to Do Not Contact list?")) return;
+  try {
+    await fetch("/api/dnc", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({place_id: _ohub.place_id, name: _ohub.name, reason: "Added from Outreach Hub"})
+    });
+    closeOhub();
+    // Remove card from view
+    const card = document.getElementById("card-" + _ohub.place_id);
+    if (card) card.remove();
+  } catch(e) { alert("DNC failed: " + e.message); }
+}
+
+// ── Pre-flight checklist ──────────────────────────────────
+function toggleChecklist(el) {
+  const body = document.getElementById("preflightBody");
+  if (body) body.classList.toggle("open");
+  const hint = el.querySelector("span:last-child");
+  if (hint) hint.textContent = body.classList.contains("open") ? "click to collapse" : "click to expand";
+}
+function checkItem(cb) {
+  const item = cb.closest(".ohub-check-item");
+  if (item) item.classList.toggle("checked", cb.checked);
+}
+
+// ── Call Script ───────────────────────────────────────────
+function renderCallScript() {
+  if (!_ohub) return;
+  const b    = _ohub;
+  const name = _oName();
+  const fee  = _oFee();
+  const city = b.city || searchCity || "[City]";
+  const el   = document.getElementById("ohubCallBody");
+  if (!el) return;
+  el.textContent = [
+    "BEFORE YOU CALL: Have the preview URL ready. Know at least one specific thing from their reviews.",
+    "",
+    "--- OPENING (first 5 seconds are everything) ---",
+    "Hi, is this the owner of " + b.name + "? Hi! My name is " + (name||"[Your Name]") + ".",
+    "I sent you an email recently about a website I built for you - I just wanted to make sure it didn't",
+    "get lost. Did you happen to see it?",
+    "",
+    "--- IF YES / THEY REMEMBER THE EMAIL ---",
+    "Great! I was wondering what you thought. I can send you the link right now so you can see it",
+    "while we talk. It literally takes two seconds to pull up.",
+    "",
+    "--- IF NO / DIDN'T SEE IT ---",
+    "No worries at all. So here's the short version: I research local businesses in " + city + " that",
+    "don't have a website but clearly have a great reputation - and " + b.name + " stood out because",
+    "of what your customers say about you. So I went ahead and built you a site.",
+    "",
+    "It's done, it's ready, and I'd love to just send you the link so you can take a look for free.",
+    "No strings at all. If it's not for you, honestly no hard feelings.",
+    "",
+    "--- HANDLING 'HOW MUCH?' ---",
+    "It's a one-time flat fee of $" + fee + ". That's it. No monthly fees, no ongoing payments.",
+    "Once you buy it, the site is completely yours forever.",
+    "",
+    "--- HANDLING 'I'M BUSY' ---",
+    "I completely understand. I'll send the link to your email right now - you can look whenever",
+    "you have two minutes. It's already built, so there's nothing to decide until you see it.",
+    "",
+    "--- CLOSING ---",
+    "Can I text you the link? Or I'll email it right now. What's easier for you?",
+    "",
+    "--- AFTER THE CALL ---",
+    "Immediately: update status to 'Replied' and note the outcome in the business notes."
+  ].join("\n");
+}
+
+// ── Quick Guide ───────────────────────────────────────────
+function openQuickGuide() { document.getElementById("quickGuideModal").classList.add("on"); }
+function closeQuickGuide() { document.getElementById("quickGuideModal").classList.remove("on"); }
+
+// ── Revenue tracking ──────────────────────────────────────
+const LS_REVENUE = "wgap_revenue_log";
+function _getRevLog() {
+  try { return JSON.parse(localStorage.getItem(LS_REVENUE) || "[]"); } catch { return []; }
+}
+function logRevenue() {
+  const amtEl = document.getElementById("ohubRevAmount");
+  const amt   = parseFloat(amtEl ? amtEl.value : 0);
+  if (!_ohub || !amt || amt <= 0) { alert("Enter a deal amount first."); return; }
+  const log = _getRevLog();
+  log.push({place_id: _ohub.place_id, name: _ohub.name, amount: amt, date: new Date().toISOString().slice(0,10)});
+  localStorage.setItem(LS_REVENUE, JSON.stringify(log));
+  setStatusDB(_ohub.place_id, "closed");
+  _ohub.status = "closed";
+  const badge = document.getElementById("ohubStatusBadge");
+  if (badge) badge.textContent = "Status: Closed";
+  const msg = document.getElementById("ohubRevMsg");
+  if (msg) msg.textContent = "Logged $" + amt.toFixed(0) + " on " + new Date().toISOString().slice(0,10);
+  _refreshRevBox();
+}
+function _refreshRevBox() {
+  const log = _getRevLog();
+  const total = log.reduce((s, e) => s + e.amount, 0);
+  const box = document.getElementById("revBox");
+  const tot = document.getElementById("revTotal");
+  const cnt = document.getElementById("revCount");
+  const avg = document.getElementById("revAvg");
+  if (!box) return;
+  if (log.length > 0) {
+    box.style.display = "flex";
+    if (tot) tot.textContent = "$" + total.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0});
+    if (cnt) cnt.textContent = log.length;
+    if (avg) avg.textContent = "avg $" + Math.round(total / log.length).toLocaleString();
+  } else {
+    box.style.display = "none";
+  }
+}
+
+// ── Email draft auto-save ─────────────────────────────────
+function _draftKey(pid) { return "wgap_draft_" + pid; }
+function saveDraft() {
+  if (!_ohub) return;
+  const subj = document.getElementById("ohubSubjectInp")?.value || "";
+  const body = document.getElementById("ohubColdBody")?.value  || "";
+  localStorage.setItem(_draftKey(_ohub.place_id), JSON.stringify({subj, body, ts: Date.now()}));
+  const el = document.getElementById("ohubDraftSaved");
+  if (el) { el.style.opacity = "1"; setTimeout(() => el.style.opacity = "0", 1800); }
+}
+function loadDraft() {
+  if (!_ohub) return;
+  try {
+    const d = JSON.parse(localStorage.getItem(_draftKey(_ohub.place_id)) || "null");
+    if (d && d.body) {
+      const sEl = document.getElementById("ohubSubjectInp");
+      const bEl = document.getElementById("ohubColdBody");
+      if (sEl && d.subj) sEl.value = d.subj;
+      if (bEl && d.body) bEl.value = d.body;
+      updateEmailMeta();
+    }
+  } catch {}
+}
+
+// ── Word count + personalization score ───────────────────
+function updateEmailMeta() {
+  const bodyEl = document.getElementById("ohubColdBody");
+  if (!bodyEl) return;
+  const words = bodyEl.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+  const wcEl = document.getElementById("ohubWordCount");
+  if (wcEl) {
+    const hint = words < 100 ? " (a bit short)" : words > 280 ? " (consider trimming)" : " (good length)";
+    wcEl.textContent = words + " words" + hint;
+  }
+  let score = 0;
+  const n = _oName(), ph = _oPhone();
+  if (n && n !== "[Your Name]")   score++;
+  if (ph && ph !== "[Your Phone]") score++;
+  const obsEl = document.getElementById("ohubObs");
+  if (obsEl && obsEl.value.trim() && _ohub && obsEl.value.trim() !== _genObs(_ohub)) score++;
+  const subjEl = document.getElementById("ohubSubjectInp");
+  if (subjEl && subjEl.value.trim()) score++;
+  const prevEl = document.getElementById("ohubPreviewUrl");
+  if (prevEl && prevEl.value.trim()) score++;
+  const scoreEl = document.getElementById("ohubPersonScore");
+  if (scoreEl) {
+    scoreEl.textContent = "● Score: " + score + "/5";
+    scoreEl.className = "ohub-score " + (score >= 4 ? "s-high" : score >= 2 ? "s-mid" : "s-low");
+  }
+  saveDraft();
+}
+
+// ── Days since contacted ──────────────────────────────────
+function _showContactAge(b) {
+  const el = document.getElementById("ohubContactAge");
+  if (!el || !b.status_date || b.status === "new") { if(el) el.style.display="none"; return; }
+  const days = Math.floor((Date.now() - new Date(b.status_date).getTime()) / 86400000);
+  if (days < 1) { el.style.display = "none"; return; }
+  const stMap = {emailed:"Emailed", followup:"Follow-up sent", replied:"Replied", closed:"Closed"};
+  el.textContent = (stMap[b.status] || b.status) + " " + days + " day" + (days !== 1 ? "s" : "") + " ago";
+  el.style.display = "block";
+  el.style.color = days >= 5 ? "var(--red)" : "var(--orange)";
+}
+
+// ── Notes sync in hub ─────────────────────────────────────
+function saveHubNotes() {
+  if (!_ohub) return;
+  const el = document.getElementById("ohubHubNotes");
+  if (!el) return;
+  localStorage.setItem("wgap_hub_notes_" + _ohub.place_id, el.value);
+  const cardTA = document.getElementById("notes-" + _ohub.place_id);
+  if (cardTA) cardTA.value = el.value;
+}
+function _loadHubNotes(b) {
+  const el = document.getElementById("ohubHubNotes");
+  if (!el) return;
+  const cardTA = document.getElementById("notes-" + b.place_id);
+  el.value = (cardTA && cardTA.value)
+    ? cardTA.value
+    : (localStorage.getItem("wgap_hub_notes_" + b.place_id) || b.notes || "");
+}
+
+// ── Social media context in website prompt ────────────────
+function _renderSocialLinks(b) {
+  const row = document.getElementById("ohubSocialLinks");
+  if (!row) return;
+  const links = [];
+  if (b.website)      links.push({label:"Website",    href: b.website.startsWith("http") ? b.website : "https://"+b.website});
+  if (b.google_maps_url) links.push({label:"Google",  href: b.google_maps_url});
+  if (b.yelp_url)     links.push({label:"Yelp",       href: b.yelp_url});
+  if (b.social_url) {
+    const su = b.social_url.toLowerCase();
+    const slabel = su.includes("instagram") ? "Instagram"
+                 : su.includes("facebook")  ? "Facebook"
+                 : su.includes("tiktok")    ? "TikTok"
+                 : "Social";
+    links.push({label: slabel, href: b.social_url});
+  }
+  if (!links.length) { row.style.display = "none"; return; }
+  row.innerHTML = '<span style="font-size:11px;color:var(--lbl-3);align-self:center;margin-right:4px">Research:</span>' +
+    links.map(l => '<a href="' + l.href + '" target="_blank" class="ohub-social-pill">' + l.label + '</a>').join("");
+  row.style.display = "flex";
+}
+
+// ── Price suggestion ──────────────────────────────────────
+function _showPriceSuggest(b) {
+  const el = document.getElementById("ohubPriceSuggest");
+  if (!el) return;
+  const rev = b.google_reviews || 0, rat = b.google_rating || 0;
+  el.textContent = rev >= 200 || (rev >= 100 && rat >= 4.8) ? "Suggest: $597-797"
+    : rev >= 50 && rat >= 4.5 ? "Suggest: $497-597"
+    : rev >= 10               ? "Suggest: $397-497"
+    : "Suggest: $297-397";
+}
+
+// ── Delivery tab ──────────────────────────────────────────
+function renderDMScript() {
+  if (!_ohub) return;
+  const b       = _ohub;
+  const biz     = b.name || "your business";
+  const city    = b.city || b.vicinity || "";
+  const cat     = (b.types && b.types[0]) ? b.types[0].replace(/_/g," ") : "local business";
+  const rev     = b.google_reviews || 0;
+  const noSite  = !b.website;
+  const fee     = _oFee() || "497";
+  const prevUrl = (document.getElementById("ohubPreviewUrl") || {}).value || "";
+
+  // First name best-guess (first word of business name as fallback)
+  const fn = biz.split(/\s+/)[0];
+
+  // ── Initial DM ──────────────────────────────────────────────────────────
+  let init = "";
+  if (noSite) {
+    init = "Hey " + fn + "! Found " + biz + " while searching " + cat + " in " + city + " ";
+    init += "— " + (rev > 0 ? rev + " reviews is seriously impressive. " : "love what you" + chr39() + "re building. ");
+    init += "I noticed you don" + chr39() + "t have a website yet. I put together a quick mockup for you — no strings. Mind if I send it over?";
+  } else {
+    init = "Hey " + fn + "! Found " + biz + " while searching " + cat + " in " + city + ". ";
+    init += (rev > 0 ? rev + " reviews is impressive. " : "");
+    init += "Quick question — is your website bringing in new customers right now, or mostly word of mouth?";
+  }
+  const initEl = document.getElementById("ohubDMInitial");
+  if (initEl) initEl.textContent = init;
+  const ccEl = document.getElementById("ohubDMCharCount");
+  if (ccEl) {
+    const n = init.length;
+    ccEl.textContent = n + " chars" + (n > 200 ? " ⚠️ consider trimming" : " ✓");
+    ccEl.style.color = n > 200 ? "var(--orange)" : "var(--green)";
+  }
+
+  // Instagram link — use actual profile if social_url is Instagram, else search
+  const igLink = document.getElementById("ohubDMInstagramLink");
+  if (igLink) {
+    if (b.social_url && b.social_url.toLowerCase().includes("instagram")) {
+      igLink.href        = b.social_url;
+      igLink.textContent = "\u{1F4F7} Open Instagram Profile";
+    } else {
+      const q = encodeURIComponent(biz + " " + city);
+      igLink.href        = "https://www.instagram.com/explore/search/keyword/?q=" + q;
+      igLink.textContent = "\u{1F4F7} Find on Instagram";
+    }
+  }
+
+  // ── Follow-up DM ────────────────────────────────────────────────────────
+  let fu = "Hey " + fn + "! Just bumping this up — ";
+  if (prevUrl) {
+    fu += "here" + chr39() + "s the preview I built for " + biz + ": " + prevUrl + " Takes 30 seconds. Still open to seeing it?";
+  } else {
+    fu += "I finished the preview site for " + biz + ". Takes 30 seconds to look at. Still want to see it?";
+  }
+  const fuEl = document.getElementById("ohubDMFollowup");
+  if (fuEl) fuEl.textContent = fu;
+
+  // ── Price reply ──────────────────────────────────────────────────────────
+  const prEl = document.getElementById("ohubDMPrice");
+  if (prEl) prEl.textContent =
+    "Flat fee — $" + fee + ", no monthly charges. Covers everything: design, copy, mobile-ready, and I" + chr39() + "ll connect your domain.
+
+Want me to walk you through exactly what" + chr39() + "s included?";
+
+  // ── More info reply ──────────────────────────────────────────────────────
+  const miEl = document.getElementById("ohubDMMoreInfo");
+  if (miEl) {
+    let mi = "Of course! Here" + chr39() + "s a quick preview of what I put together for " + biz + ":
+";
+    mi += prevUrl ? prevUrl + "
+
+" : "[send preview link]
+
+";
+    mi += "It" + chr39() + "s a fully custom site — $" + fee + " flat, no monthly fees. I handle everything. Let me know what you think!";
+    miEl.textContent = mi;
+  }
+
+  // ── Not interested reply ─────────────────────────────────────────────────
+  const niEl = document.getElementById("ohubDMNotInt");
+  if (niEl) niEl.textContent =
+    "No worries at all! If you ever change your mind or know another local business that could use one, feel free to reach out. Good luck with " + biz + chr39() + "s growth! 👋";
+
+  // ── Have someone reply ───────────────────────────────────────────────────
+  const hsEl = document.getElementById("ohubDMHaveSomeone");
+  if (hsEl) hsEl.textContent =
+    "That" + chr39() + "s great — glad you" + chr39() + "re already covered! If you ever need a second opinion or they go dark on you, I" + chr39() + "m happy to take a look. Good luck with " + biz + "!";
+
+  // — Too expensive objection —
+  const teEl = document.getElementById("ohubDMTooExp");
+  if (teEl) {
+    const anchor = rev >= 50 ? "You" + chr39() + "ve got " + rev + " reviews — that" + chr39() + "s serious trust. "
+                             : "You" + chr39() + "re already getting customers without a site — imagine what happens when people can actually find you online. ";
+    teEl.textContent =
+      "Totally fair — I hear you. Quick perspective: most agencies charge $2,000–5,000 for something like this, plus monthly fees forever. Mine is a flat one-time fee and you own it outright.
+
+" +
+      anchor +
+      "What" + chr39() + "s one new customer worth to " + biz + "? If the site brings you even 2–3 new people, it" + chr39() + "s already paid for itself many times over.
+
+" +
+      "If upfront is the issue, I can split it — half now, half when the site goes live. I want to make this work for you. What would feel fair?";
+  }
+}
+
+function chr39() { return String.fromCharCode(39); }
+
+function renderDeliveryTab() {
+  if (!_ohub) return;
+  const el = document.getElementById("ohubRevAmount");
+  if (el && !el.value) el.value = _oFee() || "497";
+}
+
+function ohubOutlook(subjId, bodyId) {
+  if (!_ohub) return;
+  if (!_ohub.email) { alert("No email address found for this business."); return; }
+  const subj = (document.getElementById(subjId)?.value || "").trim();
+  const body = (document.getElementById(bodyId)?.value || "").trim();
+  const url = "https://outlook.office.com/mail/deeplink/compose?to=" +
+    encodeURIComponent(_ohub.email) +
+    "&subject=" + encodeURIComponent(subj) +
+    "&body=" + encodeURIComponent(body);
+  window.open(url, "_blank");
+}
+function ohubGmail(subjId, bodyId) {
+  if (!_ohub) return;
+  if (!_ohub.email) { alert("No email address found for this business."); return; }
+  const subj = (document.getElementById(subjId)?.value || "").trim();
+  const body = (document.getElementById(bodyId)?.value || "").trim();
+  const url = "https://mail.google.com/mail/?view=cm" +
+    "&to=" + encodeURIComponent(_ohub.email) +
+    "&su=" + encodeURIComponent(subj) +
+    "&body=" + encodeURIComponent(body);
+  window.open(url, "_blank");
+}
+function ohubMailto(subjId, bodyId) {
+  if (!_ohub) return;
+  if (!_ohub.email) { alert("No email address found for this business."); return; }
+  const subj = (document.getElementById(subjId)?.value || "").trim();
+  const body = (document.getElementById(bodyId)?.value || "").trim();
+  window.location.href = "mailto:" + encodeURIComponent(_ohub.email) +
+    "?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body);
 }
 
 // ── Chip toggle ───────────────────────────────────────────
@@ -749,7 +2499,7 @@ function updateCostEst() {
   const detail = useGrid()
     ? `$${base}/cat × ${n} cats × 9 grid zones`
     : `$${base}/category × ${n} selected`;
-  document.getElementById("costEst").textContent = n ? `~$${cost} (${detail})` : "—";
+  document.getElementById("costEst").textContent = n ? `~$${cost} (${detail})` : "-";
 }
 updateCostEst();
 
@@ -770,9 +2520,9 @@ function pitchLine(b) {
   const city    = b.city || searchCity || "your city";
   const cat     = (b.category || "business").toLowerCase();
   if (b.presence === "social")
-    return `"${name} is active on social but invisible on Google Search — a simple site captures customers who don't check Instagram."`;
+    return `"${name} is active on social but invisible on Google Search. A simple site captures customers who don't check Instagram."`;
   if (reviews >= 200)
-    return `"With ${reviews.toLocaleString()} Google reviews, ${name} is one of ${city}'s most-loved ${cat}s — a website turns that word-of-mouth into searchable traffic."`;
+    return `"With ${reviews.toLocaleString()} Google reviews, ${name} is one of ${city}'s most-loved ${cat}s. A website turns that word-of-mouth into searchable traffic."`;
   if ((b.google_rating || 0) >= 4.8 && reviews >= 20)
     return `"A ${b.google_rating}-star average is exceptional. A website makes sure people searching for ${cat} in ${city} can actually find you."`;
   if ((b.price_level || 0) >= 3)
@@ -810,6 +2560,11 @@ function cardHTML(b) {
        </div>`
     : "";
 
+  const mxBadge = b.email_mx_valid === 1
+    ? `<span class="email-mx-ok" title="MX record verified">✓ MX</span>`
+    : b.email_mx_valid === 0
+    ? `<span class="email-mx-fail" title="No MX record found">✗ MX</span>`
+    : "";
   const emailBlock = b.email_status === "searching"
     ? `<div class="email-searching"><div class="spin-sm"></div><span>Finding email…</span></div>`
     : b.email
@@ -817,12 +2572,13 @@ function cardHTML(b) {
            <span class="ico" style="font-size:12px">✉️</span>
            <span class="email-addr">${esc(b.email)}</span>
            ${b.email_source ? `<span class="email-src">via ${esc(b.email_source)}</span>` : ""}
+           ${mxBadge}
            <button class="email-copy" title="Copy" onclick="copyEmail('${esc(b.email)}',this)">⧉</button>
          </div>`
       : `<div class="badge-no-email">✉️ No email found</div>`;
 
   const mailto     = b.email ? buildMailto(b) : "";
-  const mailtoLink = mailto ? `<a href="${mailto}" class="clink mail">Send Email</a>` : "";
+  const mailtoLink = b.email ? `<button class="clink mail" onclick="openOutreach('${pid}')">Outreach</button>` : "";
   const mapsLink   = b.google_maps_url
     ? `<a href="${esc(b.google_maps_url)}" target="_blank" rel="noopener" class="clink primary">Maps</a>` : "";
   const yelpLink   = yelp?.url
@@ -857,6 +2613,12 @@ function cardHTML(b) {
   const overdueBadge = `<span class="badge badge-overdue" id="overdue-badge-${esc(b.place_id)}"
     style="display:${overdue?'':'none'}">⚠ Overdue</span>`;
 
+  // Snooze badge
+  const today     = new Date().toISOString().slice(0, 10);
+  const isSnoozed = b.snooze_until && b.snooze_until >= today;
+  const snoozeBadge = `<span class="badge badge-snoozed" id="snooze-badge-${esc(b.place_id)}"
+    style="display:${isSnoozed?'':'none'}">⏰ Snoozed until ${esc(b.snooze_until||'')}</span>`;
+
   const pid = esc(b.place_id);
 
   return `
@@ -871,7 +2633,10 @@ function cardHTML(b) {
          data-score="${score}"
          data-overdue="${overdue?1:0}"
          data-recency="${esc(b.review_recency||'')}"
-         data-price="${b.price_level||0}">
+         data-price="${b.price_level||0}"
+         data-snooze="${esc(b.snooze_until||'')}"
+         data-lat="${b.lat||''}"
+         data-lng="${b.lng||''}">
       <div class="card-check"><input type="checkbox" onchange="toggleSelect('${pid}',this)"/></div>
       <div class="card-top">
         <div class="biz-name">${esc(b.name)}</div>
@@ -883,6 +2648,7 @@ function cardHTML(b) {
         <span class="badge ${sCls}" id="score-${pid}">${score} ${sLbl}</span>
         ${b.is_seen ? `<span class="badge badge-seen">● Seen</span>` : ""}
         ${overdueBadge}
+        ${snoozeBadge}
         ${recencyBadge}
         ${ownerBadge}
       </div>
@@ -915,6 +2681,8 @@ function cardHTML(b) {
       <div class="card-actions">
         <button class="act-btn act-reverify" id="reverify-${pid}"
                 onclick="reverifyEmail('${pid}')">🔄 Re-verify</button>
+        <button class="act-btn act-snooze" id="snooze-btn-${pid}"
+                onclick="toggleSnoozePicker('${pid}',this)">${isSnoozed?"⏰ Snoozed":"⏰ Snooze"}</button>
         <button class="act-btn act-dnc"
                 onclick="addToDNC('${pid}')">🚫 DNC</button>
       </div>
@@ -937,13 +2705,22 @@ function cardHTML(b) {
 }
 
 // ── Mailto builder ────────────────────────────────────────
+function applyTemplateVars(tmpl, b) {
+  const ownerStr = (b.owner_responses || 0) > 0 ? "actively responds to reviews" : "doesn't appear to respond to reviews";
+  return tmpl
+    .replace(/\{\{business_name\}\}/gi, b.name || "")
+    .replace(/\{\{city\}\}/gi,          b.city || searchCity || "")
+    .replace(/\{\{state\}\}/gi,         b.state || searchState || "")
+    .replace(/\{\{review_count\}\}/gi,  (b.google_reviews || 0).toLocaleString())
+    .replace(/\{\{rating\}\}/gi,        (b.google_rating  || 0).toFixed(1))
+    .replace(/\{\{category\}\}/gi,      (b.category || "business").toLowerCase())
+    .replace(/\{\{price_level\}\}/gi,   b.price_level ? (PRICE_MAP[b.price_level] || "") : "")
+    .replace(/\{\{owner_responds\}\}/gi, ownerStr);
+}
+
 function buildMailto(b) {
-  const subj = (lsGet(LS_TPL_SUB) || DEFAULT_SUBJECT)
-    .replace(/\{\{business_name\}\}/gi, b.name)
-    .replace(/\{\{city\}\}/gi, searchCity);
-  const body = (lsGet(LS_TPL_BODY) || DEFAULT_BODY)
-    .replace(/\{\{business_name\}\}/gi, b.name)
-    .replace(/\{\{city\}\}/gi, searchCity);
+  const subj = applyTemplateVars(lsGet(LS_TPL_SUB) || DEFAULT_SUBJECT, b);
+  const body = applyTemplateVars(lsGet(LS_TPL_BODY) || DEFAULT_BODY,    b);
   return `mailto:${encodeURIComponent(b.email)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
 }
 
@@ -1020,11 +2797,11 @@ async function reverifyEmail(pid) {
     const r = await fetch(`/api/reverify/${encodeURIComponent(pid)}`);
     const d = await r.json();
     if (d.error) throw new Error(d.error);
-    updateCardEmail(pid, d.email, d.email_source, d.lead_score);
+    updateCardEmail(pid, d.email, d.email_source, d.lead_score, d.email_mx_valid);
   } catch(e) {
     // silently ignore, restore button
   }
-  if (btn) { btn.disabled = false; btn.textContent = "🔄 Re-verify Email"; }
+  if (btn) { btn.disabled = false; btn.textContent = "🔄 Re-verify"; }
 }
 
 async function addToDNC(pid) {
@@ -1106,12 +2883,12 @@ async function bulkEmail() {
   if (!pairs.length) { alert("None of the selected businesses have email addresses."); return; }
 
   if (pairs.length === 1) {
-    // Single lead — open mailto directly
+    // Single lead: open mailto directly
     window.open(buildMailto(results[pairs[0].pid]));
     return;
   }
 
-  // Multiple leads — copy comma-separated list to clipboard so user can
+  // Multiple leads: copy comma-separated list to clipboard so user can
   // paste into their BCC field (mailto: BCC is not supported by RFC 6068)
   const list = pairs.map(p => p.email).join(", ");
   try {
@@ -1122,7 +2899,7 @@ async function bulkEmail() {
     btn.style.background = "var(--green)";
     setTimeout(() => { btn.textContent = orig; btn.style.background = ""; }, 2500);
   } catch {
-    // Clipboard API blocked — show the list in a prompt so user can copy manually
+    // Clipboard API blocked: show the list in a prompt so user can copy manually
     prompt(`Copy these ${pairs.length} email addresses:`, list);
   }
 }
@@ -1153,6 +2930,14 @@ function applySort() {
 
 function applyFilter() {
   const f = document.getElementById("filterSel").value;
+
+  // Distance filters need city center: fetch async then re-apply
+  if (f.startsWith("dist_") && cityLat === null) {
+    fetchCityCenter().then(ok => { if (ok) applyFilter(); });
+    return;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
   document.querySelectorAll(".card").forEach(card => {
     const pid      = card.dataset.pid;
     const status   = getStatus(pid);
@@ -1162,18 +2947,29 @@ function applyFilter() {
     const overdue  = card.dataset.overdue === "1";
     const recency  = card.dataset.recency || "";
     const price    = +(card.dataset.price || 0);
+    const snooze   = card.dataset.snooze || "";
+    const isSnoozed= snooze && snooze >= today;
+    const lat      = parseFloat(card.dataset.lat) || null;
+    const lng      = parseFloat(card.dataset.lng) || null;
     let show = true;
     if (f === "email")      show = hasEmail;
     if (f === "no_email")   show = !hasEmail;
     if (f === "social")     show = presence === "social";
     if (f === "hot")        show = score >= 70;
     if (f === "overdue")    show = overdue;
+    if (f === "snoozed")    show = isSnoozed;
     if (f === "new")        show = !status;
     if (f === "emailed")    show = status === "emailed";
     if (f === "followup")   show = status === "followup";
     if (f === "replied")    show = status === "replied";
     if (f === "active")     show = recency === "active";
     if (f === "price_high") show = price >= 3;
+    if (f.startsWith("dist_")) {
+      const maxMi = +f.split("_")[1];
+      show = (lat && lng && cityLat !== null)
+        ? haversine(cityLat, cityLng, lat, lng) <= maxMi
+        : true; // no coords → show by default
+    }
     card.style.display = show ? "" : "none";
   });
 }
@@ -1220,7 +3016,7 @@ function renderMapMarkers() {
   mapMarkers = [];
   const bounds = new google.maps.LatLngBounds();
   Object.values(results).forEach(b => {
-    const pos = extractLatLng(b.google_maps_url);
+    const pos = (b.lat && b.lng) ? {lat: b.lat, lng: b.lng} : extractLatLng(b.google_maps_url);
     if (!pos) return;
     const marker = new google.maps.Marker({
       position: pos, map: mapObj, title: b.name,
@@ -1278,12 +3074,13 @@ function addCard(biz) {
   if (mapObj) renderMapMarkers();
 }
 
-function updateCardEmail(pid, email, source, finalScore) {
+function updateCardEmail(pid, email, source, finalScore, mxValid) {
   const biz = results[pid];
   if (!biz) return;
-  biz.email        = email;
-  biz.email_source = source;
-  biz.email_status = "done";
+  biz.email          = email;
+  biz.email_source   = source;
+  biz.email_status   = "done";
+  biz.email_mx_valid = mxValid;
   if (finalScore !== undefined) biz.lead_score = finalScore;
 
   const card = document.getElementById(`card-${pid}`);
@@ -1297,6 +3094,12 @@ function updateCardEmail(pid, email, source, finalScore) {
     if (sb) { sb.className = `badge ${scoreClass(finalScore)}`; sb.textContent = `${finalScore} ${scoreLabel(finalScore)}`; }
   }
 
+  const mxBadge = mxValid === 1
+    ? `<span class="email-mx-ok" title="MX record verified">✓ MX</span>`
+    : mxValid === 0
+    ? `<span class="email-mx-fail" title="No MX record found">✗ MX</span>`
+    : "";
+
   const searching = card.querySelector(".email-searching");
   if (searching) {
     if (email) {
@@ -1306,6 +3109,7 @@ function updateCardEmail(pid, email, source, finalScore) {
         <span class="ico" style="font-size:12px">✉️</span>
         <span class="email-addr">${esc(email)}</span>
         ${source?`<span class="email-src">via ${esc(source)}</span>`:""}
+        ${mxBadge}
         <button class="email-copy" title="Copy" onclick="copyEmail('${esc(email)}',this)">⧉</button>`;
       searching.replaceWith(row);
     } else {
@@ -1319,11 +3123,13 @@ function updateCardEmail(pid, email, source, finalScore) {
   const linksDiv = card.querySelector(".card-links");
   if (linksDiv && email) {
     const existing = linksDiv.querySelector(".clink.mail");
-    const a = existing || document.createElement("a");
-    a.href = buildMailto(biz);
-    a.className = "clink mail";
-    a.textContent = "Send Email";
-    if (!existing) linksDiv.prepend(a);
+    if (!existing) {
+      const btn = document.createElement("button");
+      btn.className = "clink mail";
+      btn.textContent = "Outreach";
+      btn.onclick = () => openOutreach(biz.place_id);
+      linksDiv.prepend(btn);
+    }
   }
 
   if (mapObj) renderMapMarkers();
@@ -1367,6 +3173,8 @@ async function loadSavedResults() {
     document.getElementById("resToolbar").classList.add("on");
     searchCity  = city;
     searchState = state;
+    cityLat     = null;  // reset so distance filter re-geocodes for this city
+    cityLng     = null;
     loadDashboard();
   } catch {}
 }
@@ -1492,13 +3300,15 @@ function runNextQueued() {
     qp.style.display = "block";
     qp.textContent   = `Queue: ${q.city}, ${q.state} (${queueIdx+1}/${queue.length})`;
   }
-  // merge results from all cities — don't clear grid between queue cities
+  // merge results from all cities: don't clear grid between queue cities
   const cats  = selectedCats();
   const minR  = document.getElementById("minRat").value;
   const minRv = document.getElementById("minRev").value;
   const email = requireEmail();
   searchCity  = q.city;
   searchState = q.state;
+  cityLat     = null;
+  cityLng     = null;
   satData     = {};
   document.getElementById("satPanel").classList.remove("on");
   if (!cats.length) { skipQueueItem(); return; }
@@ -1528,11 +3338,14 @@ function handleSSEEvent(ev) {
     case "status":       document.getElementById("progMsg").textContent = ev.message; break;
     case "progress":     updateProgress(ev); break;
     case "result":       addCard(ev); break;
-    case "email_update": updateCardEmail(ev.place_id, ev.email, ev.email_source, ev.lead_score); break;
+    case "email_update": updateCardEmail(ev.place_id, ev.email, ev.email_source, ev.lead_score, ev.email_mx_valid); break;
     case "remove_result":removeCard(ev.place_id); break;
     case "saturation":   recordSaturation(ev); break;
     case "error":        showErr(ev.message); return false;  // signal error
-    case "done":         renderSaturation(); return true;   // signal done
+    case "done":
+      if (ev.center_lat != null) { cityLat = ev.center_lat; cityLng = ev.center_lng; }
+      renderSaturation();
+      return true;   // signal done
   }
   return null;  // still running
 }
@@ -1549,7 +3362,7 @@ function renderSaturation() {
   const maxPct  = entries[0][1].pct || 1;
   const sampled = entries.reduce((sum, [, s]) => sum + s.total, 0);
   document.getElementById("satSub").textContent =
-    `Sample-based estimate — ${sampled.toLocaleString()} businesses scanned across ${entries.length} categories`;
+    `Sample-based estimate: ${sampled.toLocaleString()} businesses scanned across ${entries.length} categories`;
   document.getElementById("satRows").innerHTML = entries.map(([cat, s]) => {
     const color = s.pct >= 60 ? "var(--green)" : s.pct >= 35 ? "var(--orange)" : "var(--red)";
     return `<div class="sat-row">
@@ -1562,7 +3375,7 @@ function renderSaturation() {
   const [topCat, topS] = entries[0];
   const cityName = searchCity || "this city";
   document.getElementById("satPitch").textContent =
-    `Pitch insight: ${topS.pct}% of the ${topCat.toLowerCase()} sampled in ${cityName} have no website — ` +
+    `Pitch insight: ${topS.pct}% of the ${topCat.toLowerCase()} sampled in ${cityName} have no website. ` +
     `${topS.no_website} out of ${topS.total} scanned are reachable prospects. ` +
     `(Estimate based on sample; full market may differ.)`;
   document.getElementById("satPitch").style.display = "";
@@ -1608,7 +3421,7 @@ function exportCSV() {
     .join("\n");
   const a = Object.assign(document.createElement("a"), {
     href: URL.createObjectURL(new Blob([csv],{type:"text/csv"})),
-    download: `bizfinder-${searchCity||"results"}-${Date.now()}.csv`,
+    download: `webgap-${searchCity||"results"}-${Date.now()}.csv`,
   });
   a.click(); URL.revokeObjectURL(a.href);
 }
@@ -1645,7 +3458,7 @@ async function exportAllCSV() {
     const tag  = city ? `${city.toLowerCase()}-${state.toLowerCase()}` : "all";
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(new Blob([csv],{type:"text/csv"})),
-      download: `bizfinder-db-${tag}-${Date.now()}.csv`,
+      download: `webgap-db-${tag}-${Date.now()}.csv`,
     });
     a.click(); URL.revokeObjectURL(a.href);
   } catch(e) { alert("Export failed: " + e.message); }
@@ -1664,15 +3477,14 @@ function saveTpl() {
   closeTpl();
   Object.values(results).forEach(b => {
     if (!b.email) return;
-    const a = document.querySelector(`#card-${b.place_id} .clink.mail`);
-    if (a) a.href = buildMailto(b);
+    // outreach hub handles email building per-open
   });
 }
 
 // ── Error banner ──────────────────────────────────────────
 function showErr(msg) {
   const el = document.getElementById("errBanner");
-  el.innerHTML = `<strong>Error — </strong>${esc(msg)}`;
+  el.innerHTML = `<strong>Error: </strong>${esc(msg)}`;
   el.classList.add("on");
 }
 
@@ -1690,6 +3502,8 @@ function startSearch() {
 
   searchCity  = city;
   searchState = state;
+  cityLat     = null;  // reset center; will be set from done event if grid search
+  cityLng     = null;
   results     = {};
   satData     = {};
   document.getElementById("satPanel").classList.remove("on");
@@ -1705,7 +3519,7 @@ function startSearch() {
   document.getElementById("pbarFill").classList.remove("phase2");
   document.getElementById("emptyTxt").textContent = email
     ? "No businesses with a discoverable email were found. Try turning off the email filter or broadening the location."
-    : "Try broadening your search — lower the minimum rating, add more categories, or check a neighboring city.";
+    : "Try broadening your search. Lower the minimum rating, add more categories, or check a neighboring city.";
   if (mapObj) { mapMarkers.forEach(m => m.setMap(null)); mapMarkers = []; }
 
   if (es) { es.close(); es = null; }
