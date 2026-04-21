@@ -324,20 +324,3 @@ def get_dashboard(city: str = None, state: str = None, category: str = None) -> 
         "avg_score": avg_score,
         "top_cats":  sorted(top_cats.items(), key=lambda x: -x[1])[:5],
     }
-te_overdue(r))
-    avg_score = (round(sum(r.get("lead_score") or 0 for r in rows) / total, 1)
-                 if total else 0)
-
-    top_cats: dict[str, int] = {}
-    for r in rows:
-        k = r.get("category", "?")
-        top_cats[k] = top_cats.get(k, 0) + 1
-
-    return {
-        "total":     total,
-        "has_email": has_email,
-        "statuses":  statuses,
-        "overdue":   overdue,
-        "avg_score": avg_score,
-        "top_cats":  sorted(top_cats.items(), key=lambda x: -x[1])[:5],
-    }

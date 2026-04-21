@@ -47,6 +47,9 @@ CATEGORIES = [
     ("daycare",      "daycare childcare",     "Daycare",           "#4ECDC4"),
     ("accountant",   "accountant bookkeeper", "Accountants",       "#45B7D1"),
     ("insurance",    "insurance agent",       "Insurance Agents",  "#96CEB4"),
+    ("smoke_shop",   "smoke shop tobacco",    "Smoke Shops",       "#A2845E"),
+    ("vape_shop",    "vape shop e-cigarette", "Vape Shops",        "#00D4AA"),
+    ("head_shop",    "head shop",             "Head Shops",        "#9D4EDD"),
 ]
 
 CAT_MAP = {t: (q, l, c) for t, q, l, c in CATEGORIES}
